@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./layouts/Layout";
 import NotFoundPage from "./pages/NotFoundPage";
+import HomePage from "./pages/HomePage";
 
 const App = () => {
   return (
@@ -10,7 +11,9 @@ const App = () => {
           path="/"
           element={<Layout />}
       
-        ></Route>
+        >
+          <Route index element={<HomePage/>}/>
+        </Route>
         <Route path="*" element={<NotFoundPage/>}/>
       </Routes>
     </BrowserRouter>
