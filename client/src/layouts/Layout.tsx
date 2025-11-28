@@ -4,13 +4,14 @@ import TopBar from "../components/TopBar";
 import Footer from "../components/Footer";
 
 const Layout = () => {
+  const isUserLoggedIn=false;
   return (
     <div className="min-h-screen flex flex-col">
-      {/* TopBar above everything */}
+
       <TopBar />
       
       <div className="flex flex-1">
-        <AppSideBar />
+        {isUserLoggedIn && <AppSideBar />}
         <main className="flex-1">
           <Outlet />
         </main>

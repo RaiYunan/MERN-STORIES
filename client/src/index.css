@@ -5,7 +5,7 @@
 
 @Layer base{
   body {
-    @apply bg-[#FFFFFF]
+    @apply bg-[#f5f0e8]
     /*Dark Mode - #0B192C */
   }
   button{
