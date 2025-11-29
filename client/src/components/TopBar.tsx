@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Logo from "../assets/images/logo-white.png";
 import { Button } from "./ui/button";
+import { SignUpDialog } from "./SignUpDialog";
 
 const TopBar = () => {
   return (
@@ -11,13 +12,14 @@ const TopBar = () => {
         </Link>
       </div>
 
-      {/* Desktop Navigation - hidden on mobile */}
       <div className=" flex gap-6 justify-center items-center text-sm">
         <div className="hidden md:flex cursor-pointer text-sm">Our Story</div>
         <div className="hidden md:flex cursor-pointer text-sm">Write</div>
         <div className="hidden md:flex cursor-pointer text-sm">Sign In</div>
 
-        <Button className="rounded-2xl text-sm sm:text-sm">Get Started</Button>
+        <SignUpDialog>
+          <Button className="rounded-2xl text-sm sm:text-sm">Get Started</Button>
+        </SignUpDialog>
       </div>
     </div>
   );
