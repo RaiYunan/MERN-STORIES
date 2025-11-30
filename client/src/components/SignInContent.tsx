@@ -1,4 +1,3 @@
-// SignInContent.tsx
 import { Button } from "./ui/button";
 import { Mail } from "lucide-react";
 import Facebook from "@/assets/images/facebook.png";
@@ -48,7 +47,6 @@ const SignInContent = ({ onSwitchToSignUp }: SignInContentProps) => {
             type="button"
             className="text-green-600 hover:text-green-700 font-medium underline"
             onClick={() => {
-              console.log("Create one clicked");
               onSwitchToSignUp();
             }}
           >

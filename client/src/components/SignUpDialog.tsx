@@ -1,4 +1,3 @@
-// SignUpDialog.tsx
 import {
   Dialog,
   DialogContent,
@@ -21,20 +20,22 @@ type SignUpDialogProps = {
 };
 
 export function SignUpDialog({ children, initialMode = "signup" }: SignUpDialogProps) {
-  const [mode, setMode] = useState<"signup" | "signin">("signup");
+   const [mode, setMode] = useState<"signup" | "signin">(initialMode);
+  const [open, setOpen] = useState(false);
 
   return (
     <Dialog
-      onOpenChange={(open) => {
-        if (!open) {
-          // when closing, reset to the initial mode for that usage
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (nextOpen) {
           setMode(initialMode);
         }
+        setOpen(nextOpen);
       }}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
 
-      <DialogContent className="sm:max-w-sm max-w-[90vw] py-10 px-6">
+      <DialogContent className="sm:max-w-[40vw] max-w-[90vw] py-18 px-6">
         {mode === "signup" ? (
           <>
             <DialogHeader className="space-y-2">
