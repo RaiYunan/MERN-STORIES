@@ -1,72 +1,95 @@
+// SignUpDialog.tsx
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {  Mail } from "lucide-react";
-import { DialogTrigger } from "@radix-ui/react-dialog";
+import { Mail } from "lucide-react";
 import type { ReactNode } from "react";
-import Facebook from "@/assets/images/facebook.png"
-import Google from "@/assets/images/google.jpg"
+import { useState } from "react";
+import Facebook from "@/assets/images/facebook.png";
+import Google from "@/assets/images/google.jpg";
+import SignInContent from "./SignInContent";
 
+type SignUpDialogProps = {
+  children: ReactNode,
+  initialMode?: "signup" | "signin";
+};
 
-type SignUpDialogProps={
-    children:ReactNode,
-}
+export function SignUpDialog({ children, initialMode = "signup" }: SignUpDialogProps) {
+  const [mode, setMode] = useState<"signup" | "signin">("signup");
 
-export function SignUpDialog({ children }: SignUpDialogProps) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
-      
-      <DialogContent className="max-w-md rounded-2xl px-10 py-8">
-        <DialogHeader className="space-y-2">
-          <DialogTitle className="text-3xl text-center font-serif font-semibold">
-            Join Whisper.
-          </DialogTitle>
-          <DialogDescription className="text-center">
-            Sign up to start reading and writing.
-          </DialogDescription>
-        </DialogHeader>
+    <Dialog
+      onOpenChange={(open) => {
+        if (!open) {
+          // when closing, reset to the initial mode for that usage
+          setMode(initialMode);
+        }
+      }}
+    >
+      <DialogTrigger asChild>{children}</DialogTrigger>
 
-        <div className="mt-6 space-y-3">
-          {/* Google */}
-          <Button
-            variant="outline"
-            className="w-full justify-center rounded-full h-11 text-base"
-          >
-            <img src={Google} alt="google logo" className="mr-2 h-6 w-6" />
-            Sign up with Google
-          </Button>
+      <DialogContent className="sm:max-w-sm max-w-[90vw] py-10 px-6">
+        {mode === "signup" ? (
+          <>
+            <DialogHeader className="space-y-2">
+              <DialogTitle className="text-2xl sm:text-3xl text-center font-serif">
+                Join Whisper.
+              </DialogTitle>
+              <DialogDescription className="text-center text-sm sm:text-base">
+                Sign up to start reading and writing.
+              </DialogDescription>
+            </DialogHeader>
 
-          {/* Facebook */}
-          <Button
-            variant="outline"
-            className="w-full justify-center rounded-full h-11 text-base"
-          >
-            <img src={Facebook} alt="facebook logo" className="mr-2 h-5 w-5"/>
-            Sign up with Facebook
-          </Button>
+            <div className="mt-6 space-y-2.5">
+              <Button
+                variant="outline"
+                className="w-full rounded-full h-11 sm:h-12 text-base font-normal"
+              >
+                <img src={Google} alt="google logo" className="mr-2 h-5 w-5" />
+                Sign up with Google
+              </Button>
 
-          {/* Email */}
-          <Button
-            variant="outline"
-            className="w-full justify-center rounded-full h-11 text-base"
-          >
-            <Mail className="mr-2 h-5 w-5" />
-            Sign up with email
-          </Button>
-        </div>
+              <Button
+                variant="outline"
+                className="w-full rounded-full h-11 sm:h-12 text-base font-normal"
+              >
+                <img
+                  src={Facebook}
+                  alt="facebook logo"
+                  className="mr-2 h-4 w-4"
+                />
+                Sign up with Facebook
+              </Button>
 
-        <p className="mt-4 text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <button className="text-green-600 hover:text-green-700 font-medium underline">Sign in</button>
-        </p>
+              <Button
+                variant="outline"
+                className="w-full rounded-full h-11 sm:h-12 text-base font-normal"
+              >
+                <Mail className="mr-2 h-5 w-5" />
+                Sign up with email
+              </Button>
+            </div>
+
+            <p className="mt-5 text-center text-sm text-muted-foreground">
+              Already have an account?{" "}
+              <button
+                type="button"
+                className="text-green-600 hover:text-green-700 font-medium underline"
+                onClick={() => setMode("signin")}
+              >
+                Sign in
+              </button>
+            </p>
+          </>
+        ) : (
+          <SignInContent onSwitchToSignUp={() => setMode("signup")} />
+        )}
       </DialogContent>
     </Dialog>
   );
