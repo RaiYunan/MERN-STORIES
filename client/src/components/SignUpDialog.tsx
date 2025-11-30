@@ -26,7 +26,7 @@ export function SignUpDialog({ children }: SignUpDialogProps) {
       
       <DialogContent className="max-w-md rounded-2xl px-10 py-8">
         <DialogHeader className="space-y-2">
-          <DialogTitle className="text-2xl text-center font-semibold">
+          <DialogTitle className="text-3xl text-center font-serif font-semibold">
             Join Whisper.
           </DialogTitle>
           <DialogDescription className="text-center">
@@ -65,7 +65,7 @@ export function SignUpDialog({ children }: SignUpDialogProps) {
 
         <p className="mt-4 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <button className="underline">Sign in</button>
+          <button className="text-green-600 hover:text-green-700 font-medium underline">Sign in</button>
         </p>
       </DialogContent>
     </Dialog>
