@@ -15,7 +15,7 @@ const HomePage = () => {
           explore perspectives, and find meaning in every word.
         </p>
         <SignUpDialog>
-          <Button className="rounded-2xl mt-8 sm:mt-10 lg:mt-14 text-lg px-6 py-6 bg-black hover:bg-gray-800">
+          <Button className="rounded-2xl mt-8 sm:mt-10 lg:mt-14 text-lg px-6 py-6 bg-green-600 hover:bg-green-700">
           Begin Your Journey
         </Button>
         </SignUpDialog>

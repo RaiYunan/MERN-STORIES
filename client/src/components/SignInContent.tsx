@@ -5,9 +5,10 @@ import Google from "@/assets/images/google.jpg";
 
 type SignInContentProps = {
   onSwitchToSignUp: () => void;
+  onSwitchToSignInEmail:()=>void
 };
 
-const SignInContent = ({ onSwitchToSignUp }: SignInContentProps) => {
+const SignInContent = ({ onSwitchToSignUp,onSwitchToSignInEmail }: SignInContentProps) => {
   return (
     <>
       <h2 className="text-2xl sm:text-3xl font-serif text-center">
@@ -34,6 +35,7 @@ const SignInContent = ({ onSwitchToSignUp }: SignInContentProps) => {
         <Button
           variant="outline"
           className="w-full rounded-full h-11 sm:h-12 text-base font-normal"
+          onClick={()=>onSwitchToSignInEmail()}
         >
           <Mail className="mr-3 h-5 w-5" />
           Sign in with email

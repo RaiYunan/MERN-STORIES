@@ -13,14 +13,20 @@ import { useState } from "react";
 import Facebook from "@/assets/images/facebook.png";
 import Google from "@/assets/images/google.jpg";
 import SignInContent from "./SignInContent";
+import SignUpEmailContent from "./SignUpEmailContent";
+import SignInEmailContent from "./SignInEmailContent";
 
 type SignUpDialogProps = {
-  children: ReactNode,
+  children: ReactNode;
   initialMode?: "signup" | "signin";
 };
 
-export function SignUpDialog({ children, initialMode = "signup" }: SignUpDialogProps) {
-   const [mode, setMode] = useState<"signup" | "signin">(initialMode);
+type Mode = "signup" | "signin" | "signup-email" | "signin-email";
+export function SignUpDialog({
+  children,
+  initialMode = "signup",
+}: SignUpDialogProps) {
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [open, setOpen] = useState(false);
 
   return (
@@ -36,7 +42,8 @@ export function SignUpDialog({ children, initialMode = "signup" }: SignUpDialogP
       <DialogTrigger asChild>{children}</DialogTrigger>
 
       <DialogContent className="sm:max-w-[40vw] max-w-[90vw] py-18 px-6">
-        {mode === "signup" ? (
+        {/* //SignUp Dialog */}
+        {mode === "signup" && (
           <>
             <DialogHeader className="space-y-2">
               <DialogTitle className="text-2xl sm:text-3xl text-center font-serif">
@@ -71,6 +78,7 @@ export function SignUpDialog({ children, initialMode = "signup" }: SignUpDialogP
               <Button
                 variant="outline"
                 className="w-full rounded-full h-11 sm:h-12 text-base font-normal"
+                onClick={() => setMode("signup-email")}
               >
                 <Mail className="mr-2 h-5 w-5" />
                 Sign up with email
@@ -88,9 +96,21 @@ export function SignUpDialog({ children, initialMode = "signup" }: SignUpDialogP
               </button>
             </p>
           </>
-        ) : (
-          <SignInContent onSwitchToSignUp={() => setMode("signup")} />
         )}
+
+        {/* SignIn Dialog */}
+        {mode === "signin" && (
+          <SignInContent
+            onSwitchToSignUp={() => setMode("signup")}
+            onSwitchToSignInEmail={() => setMode("signin-email")}
+          />
+        )}
+
+        {/*SignUp with email dialog */}
+        {mode === "signup-email" && <SignUpEmailContent />}
+
+        {/*SignIn with email dilaog */}
+        {mode === "signin-email" && <SignInEmailContent />}
       </DialogContent>
     </Dialog>
   );
