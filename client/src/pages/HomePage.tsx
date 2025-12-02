@@ -7,7 +7,7 @@ const HomePage = () => {
     <div className="flex flex-col lg:flex-row min-h-[80vh] items-center justify-center">
       {/* Text Content */}
       <div className="w-full lg:w-[65%] px-6 sm:px-8 lg:px-16">
-        <h1 className="text-6xl sm:text-4xl lg:text-7xl font-bold leading-tight sm:leading-tight lg:leading-tight">
+        <h1 className="text-6xl sm:text-4xl lg:text-7xl font-bold leading-tight sm:leading-tight lg:leading-tight font-serif">
           Echoes of Experience
         </h1>
         <p className="text-lg sm:text-lg lg:text-xl mt-8 sm:mt-10 lg:mt-14 text-gray-600 leading-relaxed max-w-2xl">

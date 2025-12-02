@@ -13,7 +13,11 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-const SignUpEmailContent = () => {
+type SignInEmailContentProps={
+  onSwitchToSignUp:()=>void;
+  onSwitchToSignIn:()=>void
+}
+const SignUpEmailContent = ({onSwitchToSignIn,onSwitchToSignUp}:SignInEmailContentProps) => {
   const formSchema = z.object({
     name: z
       .string()
@@ -45,20 +49,20 @@ const SignUpEmailContent = () => {
   return (
     <>
       <div className="max-w-full mx-auto">
-        <img src={mailLogo} alt="mail-logo" className=" w-14 h-14" />
+        <img src={mailLogo} alt="mail-logo" className=" w-12 h-12" />
       </div>
       <h2 className="font-serif text-center text-2xl font-medium">
-        Sign up with email
+        Create Your Account
       </h2>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
           <div>
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Full Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter your name" {...field} />
                   </FormControl>
@@ -75,7 +79,7 @@ const SignUpEmailContent = () => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Email Address</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter your email address" {...field} />
                   </FormControl>
@@ -111,7 +115,7 @@ const SignUpEmailContent = () => {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
@@ -124,12 +128,20 @@ const SignUpEmailContent = () => {
               )}
             />
           </div>
-          <div className="flex items-center flex-col gap-4">
+          <div className="flex items-center flex-col gap-2">
             <Button type="submit" className="text-center max-w-fit">
-              Create Account
+              Sign Up
             </Button>
-            <button className="underline text-sm">Back to sign up options</button>
-            <p className="text-sm">Already have an account?{" "}<button className="underline">Sign in</button></p>
+            <button
+              className="underline text-sm"
+              onClick={onSwitchToSignUp}
+            >
+              Back to other sign-up options
+            </button>
+            <p className="text-sm">
+              Already have an account?{" "}
+              <button className="underline" onClick={onSwitchToSignIn}>Sign in</button>
+            </p>
           </div>
         </form>
       </Form>

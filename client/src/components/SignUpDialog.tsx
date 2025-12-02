@@ -41,7 +41,7 @@ export function SignUpDialog({
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
 
-      <DialogContent className="sm:max-w-[40vw] max-w-[90vw] py-18 px-6">
+      <DialogContent className="sm:max-w-[40vw] max-w-[90vw] py-10 px-6">
         {/* //SignUp Dialog */}
         {mode === "signup" && (
           <>
@@ -107,7 +107,7 @@ export function SignUpDialog({
         )}
 
         {/*SignUp with email dialog */}
-        {mode === "signup-email" && <SignUpEmailContent />}
+        {mode === "signup-email" && <SignUpEmailContent  onSwitchToSignUp={()=>setMode("signup")} onSwitchToSignIn={()=>setMode("signin")}/>}
 
         {/*SignIn with email dilaog */}
         {mode === "signin-email" && <SignInEmailContent />}
