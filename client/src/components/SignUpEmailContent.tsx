@@ -12,24 +12,34 @@ import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 
-type SignUpEmailContentProps={
-  onSwitchToSignUp:()=>void;
-  onSwitchToSignIn:()=>void
-}
-const SignUpEmailContent = ({onSwitchToSignIn,onSwitchToSignUp}:SignUpEmailContentProps) => {
-  const formSchema = z
-  .object({
-    name: z.string().min(2).max(100),
-    email: z.string().email(),
-    password: z.string().min(8),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
+import { FaEye } from "react-icons/fa";
+import { FaEyeSlash } from "react-icons/fa";
+
+type SignUpEmailContentProps = {
+  onSwitchToSignUp: () => void;
+  onSwitchToSignIn: () => void;
+};
+const SignUpEmailContent = ({
+  onSwitchToSignIn,
+  onSwitchToSignUp,
+}: SignUpEmailContentProps) => {
+  const [showPassword, setShowPassword] = useState({
+    new: false,
+    confirm: false,
   });
-
+  const formSchema = z
+    .object({
+      name: z.string().min(2).max(100),
+      email: z.string().email(),
+      password: z.string().min(8),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: "Passwords do not match",
+      path: ["confirmPassword"],
+    });
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -100,11 +110,26 @@ const SignUpEmailContent = ({onSwitchToSignIn,onSwitchToSignUp}:SignUpEmailConte
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter your password"
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showPassword.new ? "text" : "password"}
+                        placeholder="Enter your password"
+                        {...field}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        className="absolute top-1/2 transform -translate-y-1/2 right-3 text-gray-600 hover:text-gray-800 transition-colors cursor-pointer"
+                        onClick={() =>
+                          setShowPassword((prev) => ({
+                            ...prev,
+                            new: !prev.new,
+                          }))
+                        }
+                      >
+                        {showPassword.new ? <FaEyeSlash className="w-4 h-4"/> : <FaEye className="w-4 h-4"/>}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -119,13 +144,34 @@ const SignUpEmailContent = ({onSwitchToSignIn,onSwitchToSignUp}:SignUpEmailConte
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Confirm Password</FormLabel>
+
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter your password again"
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showPassword.confirm ? "text" : "password"}
+                        placeholder="Enter your password again"
+                        {...field}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800 tansition-colors cursor-pointer"
+                        onClick={() => {
+                          setShowPassword((prev) => ({
+                            ...prev,
+                            confirm: !prev.confirm,
+                          }));
+                        }}
+                      >
+                        {showPassword.confirm ? (
+                          <FaEyeSlash className="w-4 h-4" />
+                        ) : (
+                          <FaEye className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
                   </FormControl>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -135,15 +181,14 @@ const SignUpEmailContent = ({onSwitchToSignIn,onSwitchToSignUp}:SignUpEmailConte
             <Button type="submit" className="text-center max-w-fit">
               Sign Up
             </Button>
-            <button
-              className="underline text-sm"
-              onClick={onSwitchToSignUp}
-            >
+            <button className="underline text-sm" onClick={onSwitchToSignUp}>
               Back to other sign-up options
             </button>
             <p className="text-sm">
               Already have an account?{" "}
-              <button className="underline" onClick={onSwitchToSignIn}>Sign in</button>
+              <button className="underline" onClick={onSwitchToSignIn}>
+                Sign in
+              </button>
             </p>
           </div>
         </form>
