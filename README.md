@@ -27,6 +27,7 @@ Think of it as a minimal, cozy writing space focused on words, not noise.
 - 🎨 **Modern UI**
   - **Tailwind CSS** for styling.
   - **lucide-react** for crisp, minimal icons.
+  - **react-icons**  additional icon packs for UI flexibility
 
 - 🔁 **Smooth UX**
   - **React Router DOM** for SPA navigation.
@@ -40,6 +41,7 @@ Think of it as a minimal, cozy writing space focused on words, not noise.
 - React + TypeScript
 - Tailwind CSS
 - lucide-react
+- react-icons
 - React Router DOM
 - Axios
 - Firebase
