@@ -41,7 +41,7 @@ export function SignUpDialog({
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
 
-      <DialogContent className="sm:max-w-[40vw] max-w-[90vw] py-10 px-6">
+      <DialogContent className="sm:max-w-[50vw] max-w-[90vw] py-10 px-30">
         {/* //SignUp Dialog */}
         {mode === "signup" && (
           <>
@@ -57,7 +57,7 @@ export function SignUpDialog({
             <div className="mt-6 space-y-2.5">
               <Button
                 variant="outline"
-                className="w-full rounded-full h-11 sm:h-12 text-base font-normal"
+                className="w-full rounded-full h-11 sm:h-12 text-base font-normal border-black border"
               >
                 <img src={Google} alt="google logo" className="mr-2 h-5 w-5" />
                 Sign up with Google
@@ -65,7 +65,7 @@ export function SignUpDialog({
 
               <Button
                 variant="outline"
-                className="w-full rounded-full h-11 sm:h-12 text-base font-normal"
+                className="w-full rounded-full h-11 sm:h-12 text-base font-normal border border-black"
               >
                 <img
                   src={Facebook}
@@ -77,7 +77,7 @@ export function SignUpDialog({
 
               <Button
                 variant="outline"
-                className="w-full rounded-full h-11 sm:h-12 text-base font-normal"
+                className="w-full rounded-full h-11 sm:h-12 text-base font-normal border border-black"
                 onClick={() => setMode("signup-email")}
               >
                 <Mail className="mr-2 h-5 w-5" />
@@ -110,7 +110,7 @@ export function SignUpDialog({
         {mode === "signup-email" && <SignUpEmailContent  onSwitchToSignUp={()=>setMode("signup")} onSwitchToSignIn={()=>setMode("signin")}/>}
 
         {/*SignIn with email dilaog */}
-        {mode === "signin-email" && <SignInEmailContent />}
+        {mode === "signin-email" && <SignInEmailContent onSwitchToSignIn={()=>setMode("signin")}/>}
       </DialogContent>
     </Dialog>
   );

@@ -18,7 +18,7 @@ const SignInContent = ({ onSwitchToSignUp,onSwitchToSignInEmail }: SignInContent
       <div className="flex flex-col gap-2.5 mt-6">
         <Button
           variant="outline"
-          className="w-full rounded-full h-11 sm:h-12 text-base font-normal"
+          className="w-full rounded-full h-11 sm:h-12 text-base font-normal border border-black"
         >
           <img src={Google} alt="google logo" className="mr-2 h-5 w-5" />
           Sign in with Google
@@ -26,7 +26,7 @@ const SignInContent = ({ onSwitchToSignUp,onSwitchToSignInEmail }: SignInContent
 
         <Button
           variant="outline"
-          className="w-full rounded-full h-11 sm:h-12 text-base font-normal"
+          className="w-full rounded-full h-11 sm:h-12 text-base font-normal border border-black"
         >
           <img src={Facebook} alt="facebook logo" className="mr-2 h-4 w-4" />
           Sign in with Facebook
@@ -34,7 +34,7 @@ const SignInContent = ({ onSwitchToSignUp,onSwitchToSignInEmail }: SignInContent
 
         <Button
           variant="outline"
-          className="w-full rounded-full h-11 sm:h-12 text-base font-normal"
+          className="w-full rounded-full h-11 sm:h-12 text-base font-normal border border-black"
           onClick={()=>onSwitchToSignInEmail()}
         >
           <Mail className="mr-3 h-5 w-5" />

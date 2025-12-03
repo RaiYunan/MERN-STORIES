@@ -13,20 +13,23 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-type SignInEmailContentProps={
+type SignUpEmailContentProps={
   onSwitchToSignUp:()=>void;
   onSwitchToSignIn:()=>void
 }
-const SignUpEmailContent = ({onSwitchToSignIn,onSwitchToSignUp}:SignInEmailContentProps) => {
-  const formSchema = z.object({
-    name: z
-      .string()
-      .min(2, "Name must be at least 2 characters long.")
-      .max(100, "Name must be less than 100 characters long."),
-    email: z.string().email("Please enter a valid email address."),
-    password: z.string().min(8, "Password must be at least 8 characters long"),
+const SignUpEmailContent = ({onSwitchToSignIn,onSwitchToSignUp}:SignUpEmailContentProps) => {
+  const formSchema = z
+  .object({
+    name: z.string().min(2).max(100),
+    email: z.string().email(),
+    password: z.string().min(8),
     confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
   });
+
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
