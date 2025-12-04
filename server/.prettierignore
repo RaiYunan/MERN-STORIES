@@ -1,0 +1,12 @@
+# Editor config
+.vscode/
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
+.env
+.env.*
