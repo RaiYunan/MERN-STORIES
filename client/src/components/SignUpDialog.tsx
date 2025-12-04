@@ -41,76 +41,94 @@ export function SignUpDialog({
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
 
-      <DialogContent className="sm:max-w-[50vw] max-w-[90vw] py-10 px-30">
-        {/* //SignUp Dialog */}
-        {mode === "signup" && (
-          <>
-            <DialogHeader className="space-y-2">
-              <DialogTitle className="text-2xl sm:text-3xl text-center font-serif">
-                Join Whisper.
-              </DialogTitle>
-              <DialogDescription className="text-center text-sm sm:text-base">
-                Sign up to start reading and writing.
-              </DialogDescription>
-            </DialogHeader>
+      <DialogContent
+        className="
+    max-w-[90vw] max-h-[85vh] overflow-hidden flex flex-col
+    sm:max-w-[50vw] sm:max-h-[90vh] rounded-lg py-10 px-6 sm:px-8
+  "
+      >
+       
+          {/* //SignUp Dialog */}
+          {mode === "signup" && (
+            <>
+              <DialogHeader className="space-y-2">
+                <DialogTitle className="text-2xl sm:text-3xl text-center font-serif">
+                  Join Whisper.
+                </DialogTitle>
+                <DialogDescription className="text-center text-sm sm:text-base">
+                  Sign up to start reading and writing.
+                </DialogDescription>
+              </DialogHeader>
 
-            <div className="mt-6 space-y-2.5">
-              <Button
-                variant="outline"
-                className="w-full rounded-full h-11 sm:h-12 text-base font-normal border-black border"
-              >
-                <img src={Google} alt="google logo" className="mr-2 h-5 w-5" />
-                Sign up with Google
-              </Button>
+              <div className="mt-6 space-y-2.5">
+                <Button
+                  variant="outline"
+                  className="w-full rounded-full h-11 sm:h-12 text-base font-normal border-black border"
+                >
+                  <img
+                    src={Google}
+                    alt="google logo"
+                    className="mr-2 h-5 w-5"
+                  />
+                  Sign up with Google
+                </Button>
 
-              <Button
-                variant="outline"
-                className="w-full rounded-full h-11 sm:h-12 text-base font-normal border border-black"
-              >
-                <img
-                  src={Facebook}
-                  alt="facebook logo"
-                  className="mr-2 h-4 w-4"
-                />
-                Sign up with Facebook
-              </Button>
+                <Button
+                  variant="outline"
+                  className="w-full rounded-full h-11 sm:h-12 text-base font-normal border border-black"
+                >
+                  <img
+                    src={Facebook}
+                    alt="facebook logo"
+                    className="mr-2 h-4 w-4"
+                  />
+                  Sign up with Facebook
+                </Button>
 
-              <Button
-                variant="outline"
-                className="w-full rounded-full h-11 sm:h-12 text-base font-normal border border-black"
-                onClick={() => setMode("signup-email")}
-              >
-                <Mail className="mr-2 h-5 w-5" />
-                Sign up with email
-              </Button>
-            </div>
+                <Button
+                  variant="outline"
+                  className="w-full rounded-full h-11 sm:h-12 text-base font-normal border border-black"
+                  onClick={() => setMode("signup-email")}
+                >
+                  <Mail className="mr-2 h-5 w-5" />
+                  Sign up with email
+                </Button>
+              </div>
 
-            <p className="mt-5 text-center text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <button
-                type="button"
-                className="text-green-600 hover:text-green-700 font-medium underline"
-                onClick={() => setMode("signin")}
-              >
-                Sign in
-              </button>
-            </p>
-          </>
-        )}
+              <p className="mt-5 text-center text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <button
+                  type="button"
+                  className="text-green-600 hover:text-green-700 font-medium underline"
+                  onClick={() => setMode("signin")}
+                >
+                  Sign in
+                </button>
+              </p>
+            </>
+          )}
 
-        {/* SignIn Dialog */}
-        {mode === "signin" && (
-          <SignInContent
-            onSwitchToSignUp={() => setMode("signup")}
-            onSwitchToSignInEmail={() => setMode("signin-email")}
-          />
-        )}
+          {/* SignIn Dialog */}
+          {mode === "signin" && (
+            <SignInContent
+              onSwitchToSignUp={() => setMode("signup")}
+              onSwitchToSignInEmail={() => setMode("signin-email")}
+            />
+          )}
 
-        {/*SignUp with email dialog */}
-        {mode === "signup-email" && <SignUpEmailContent  onSwitchToSignUp={()=>setMode("signup")} onSwitchToSignIn={()=>setMode("signin")}/>}
+          {/*SignUp with email dialog */}
+          {mode === "signup-email" && (
+            <SignUpEmailContent
+              onSwitchToSignUp={() => setMode("signup")}
+              onSwitchToSignIn={() => setMode("signin")}
+            />
+          )}
 
-        {/*SignIn with email dilaog */}
-        {mode === "signin-email" && <SignInEmailContent onSwitchToSignIn={()=>setMode("signin")}/>}
+          {/*SignIn with email dilaog */}
+          {mode === "signin-email" && (
+            <SignInEmailContent onSwitchToSignIn={() => setMode("signin")} />
+          )}
+        
       </DialogContent>
     </Dialog>
   );
