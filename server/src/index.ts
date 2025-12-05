@@ -1,12 +1,30 @@
-import express from "express";
-import type { Express, Request, Response } from "express";
+import express from 'express';
+import type { Express, Request, Response } from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import connectDB from './db/index';
 
+dotenv.config();
 
-const app:Express=express()
+const app: Express = express();
+app.use(cors());
+app.use(express.json()); 
 
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello backend setup!");
+app.get('/', (req: Request, res: Response) => {
+  res.send('Hello World!');
 });
 
-app.listen(5000, () => console.log("Server running..."));
+connectDB()
+  .then(() => {
+    const server = app.listen(process.env.PORT || 8000, () => {
+      console.log(`Server is running at port : ${process.env.PORT || 8000}`);
+    });
+
+    server.on('error', (error) => {
+      console.error('Server Error : ', error);
+      process.exit(1);
+    });
+  })
+  .catch((err) => {
+    console.log('MongoDB Connection failed :: ', err);
+  });
