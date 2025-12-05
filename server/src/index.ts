@@ -3,6 +3,7 @@ import type { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from './db/index';
+import authRouter from "./routes/auth.route"
 
 dotenv.config();
 
@@ -20,6 +21,9 @@ app.use(express.static("public"));
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello World!');
 });
+
+//Routes
+app.use("/api/v1/auth",authRouter)
 
 connectDB()
   .then(() => {
