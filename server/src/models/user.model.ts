@@ -1,12 +1,15 @@
 import mongoose,{Document,Model,Schema} from "mongoose";
+import bcrypt from "bcrypt"
 
 export interface IUser extends Document{
-    name:string,
-    email:string,
-    password:string,
-    avatar?:string,
-    createdAt:Date,
-    updatedAt:Date
+    name:string;
+    email:string;
+    password:string;
+    avatar?:string;
+    authProvider:String;
+    createdAt:Date;
+    updatedAt:Date;
+    isPasswordCorrect(password:string):Promise<boolean>;
 }
 
 const userSchema=new Schema<IUser>({
@@ -29,7 +32,22 @@ const userSchema=new Schema<IUser>({
     avatar:{
         type:String,
         default:""
+    },
+    authProvider:{
+        type:String,
+        enum:["local","google"],
+        default:"local"
+
     }
 },{timestamps:true})
+
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
+
+    if (this.password) {
+        this.password = await bcrypt.hash(this.password, 10);
+    }
+});
+
 
 export const User:Model<IUser>=mongoose.model<IUser>("User",userSchema)
