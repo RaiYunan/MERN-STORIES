@@ -44,7 +44,7 @@ export function SignUpDialog({
       <DialogContent
         className="
     max-w-[90vw] max-h-[85vh] overflow-hidden flex flex-col
-    sm:max-w-[50vw] sm:max-h-[90vh] rounded-lg py-10 px-6 sm:px-8
+    sm:max-w-[50vw] sm:max-h-[95vh] rounded-lg py-10 px-6 sm:px-30
   "
       >
        
