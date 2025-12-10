@@ -4,7 +4,7 @@ import type { ToastOptions } from "react-hot-toast";
 type ToastType = "success" | "error" | "info" | "default";
 
 const config: ToastOptions = {
-  position: "bottom-center",
+  position: "top-center",
   duration: 2500,
   style: {
     borderRadius: "16px",

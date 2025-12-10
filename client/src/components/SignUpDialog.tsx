@@ -121,6 +121,7 @@ export function SignUpDialog({
             <SignUpEmailContent
               onSwitchToSignUp={() => setMode("signup")}
               onSwitchToSignIn={() => setMode("signin")}
+              onSwitchToSignInEmail={()=>setMode("signin-email")}
             />
           )}
 

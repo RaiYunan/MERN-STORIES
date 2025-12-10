@@ -16,14 +16,18 @@ import { useState } from "react";
 
 import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
+import { showToast } from "@/helpers/showToast";
+import axios from "axios";
 
 type SignUpEmailContentProps = {
   onSwitchToSignUp: () => void;
   onSwitchToSignIn: () => void;
+  onSwitchToSignInEmail:()=>void;
 };
 const SignUpEmailContent = ({
   onSwitchToSignIn,
   onSwitchToSignUp,
+  onSwitchToSignInEmail
 }: SignUpEmailContentProps) => {
   const [showPassword, setShowPassword] = useState({
     new: false,
@@ -52,11 +56,23 @@ const SignUpEmailContent = ({
     },
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    const { confirmPassword, ...userData } = values;
+
+    const url = `${import.meta.env.VITE_URL}/auth/register`;
+    try {
+      const response = await axios.post(url, userData);
+      const data = response.data;
+
+      showToast("success", data.message);
+      onSwitchToSignInEmail();
+    } catch (error:any) {
+      const msg =
+        error.response?.data?.message || "Something went wrong. Try again.";
+
+      showToast("error", msg);
+    }
   }
 
   return (
@@ -127,7 +143,11 @@ const SignUpEmailContent = ({
                           }))
                         }
                       >
-                        {showPassword.new ? <FaEyeSlash className="w-4 h-4"/> : <FaEye className="w-4 h-4"/>}
+                        {showPassword.new ? (
+                          <FaEyeSlash className="w-4 h-4" />
+                        ) : (
+                          <FaEye className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                   </FormControl>
