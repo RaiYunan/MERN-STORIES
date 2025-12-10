@@ -1,9 +1,10 @@
 import express from 'express';
-import type { Express, Request, Response } from 'express';
+import type { Express, Request, Response,NextFunction } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from './db/index';
 import authRouter from "./routes/auth.route"
+import { ApiError } from './utils/ApiError';
 
 dotenv.config();
 
@@ -24,6 +25,35 @@ app.get('/', (req: Request, res: Response) => {
 
 //Routes
 app.use("/api/v1/auth",authRouter)
+
+
+//Global Error Middleware
+app.use(
+  (err: unknown, req: Request, res: Response, next: NextFunction) => {
+    console.error(err);
+
+    if (err instanceof ApiError) {
+      return res.status(err.statusCode).json({
+        statusCode: err.statusCode,
+        success: false,
+        message: err.message,
+        data: null,
+        errors: err.errors || [],
+      });
+    }
+
+    const message =
+      err instanceof Error ? err.message : "Internal Server Error";
+
+    res.status(500).json({
+      statusCode: 500,
+      success: false,
+      message,
+      data: null,
+      errors: [],
+    });
+  }
+);
 
 connectDB()
   .then(() => {
