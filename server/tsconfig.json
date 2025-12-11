@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
     "target": "ES2022",
     "module": "commonjs",
     "moduleResolution": "node",
@@ -9,7 +10,8 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["node"],
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
