@@ -12,12 +12,15 @@ import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 type SignInEmailContentProps = {
   onSwitchToSignIn: () => void;
 };
 
 const SignInEmailContent = ({ onSwitchToSignIn }: SignInEmailContentProps) => {
+  const [showPassword, setShowPassword] = useState(false);
   const formSchema = z.object({
     email: z.string().email(),
     password: z.string().min(8),
@@ -72,11 +75,21 @@ const SignInEmailContent = ({ onSwitchToSignIn }: SignInEmailContentProps) => {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter your password"
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        {...field}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        className="absolute top-1/2 transform -translate-y-1/2 right-3 text-gray-600 hover:text-gray-800 transition-colors"
+                        onClick={() => setShowPassword(prev => !prev)}
+                      >
+                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
