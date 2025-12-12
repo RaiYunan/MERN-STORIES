@@ -14,6 +14,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { showToast } from "@/helpers/showToast";
+import axios from "axios";
 
 type SignInEmailContentProps = {
   onSwitchToSignIn: () => void;
@@ -35,11 +37,22 @@ const SignInEmailContent = ({ onSwitchToSignIn }: SignInEmailContentProps) => {
     },
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const url=`${import.meta.env.VITE_URL}/auth/login`
+    try {
+      const response=await axios.post(url,values);
+      const data=response.data;
+      showToast("success",data.message);
+      
+    } catch (error:any) {
+      const msg =
+        error.response?.data?.message || "Something went wrong. Try again.";
+
+      showToast("error", msg);
+      
+    }
+
   }
   return (
     <>
