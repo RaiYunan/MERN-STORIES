@@ -29,6 +29,9 @@ export function SignUpDialog({
   const [mode, setMode] = useState<Mode>(initialMode);
   const [open, setOpen] = useState(false);
 
+  const handleAuthSuccess=()=>{
+    setOpen(false);
+  }
   return (
     <Dialog
       open={open}
@@ -127,7 +130,7 @@ export function SignUpDialog({
 
           {/*SignIn with email dilaog */}
           {mode === "signin-email" && (
-            <SignInEmailContent onSwitchToSignIn={() => setMode("signin")} />
+            <SignInEmailContent onSwitchToSignIn={() => setMode("signin")} closeDialog={handleAuthSuccess} />
           )}
         
       </DialogContent>

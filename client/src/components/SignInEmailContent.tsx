@@ -12,17 +12,29 @@ import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { showToast } from "@/helpers/showToast";
 import axios from "axios";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { authStart, authSuccess } from "@/features/auth/authSlice";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/app/store";
 
 type SignInEmailContentProps = {
   onSwitchToSignIn: () => void;
+  closeDialog: () => void;
 };
 
-const SignInEmailContent = ({ onSwitchToSignIn }: SignInEmailContentProps) => {
+const SignInEmailContent = ({
+  onSwitchToSignIn,
+  closeDialog,
+}: SignInEmailContentProps) => {
   const [showPassword, setShowPassword] = useState(false);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+
+  const dispatch = useAppDispatch();
   const formSchema = z.object({
     email: z.string().email(),
     password: z.string().min(8),
@@ -37,22 +49,30 @@ const SignInEmailContent = ({ onSwitchToSignIn }: SignInEmailContentProps) => {
     },
   });
 
-  
+  useEffect(() => {
+    console.log("User state updated:", user);
+    console.log("Auth status:", isAuthenticated);
+  }, [user, isAuthenticated]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const url=`${import.meta.env.VITE_URL}/auth/login`
+    const url = `${import.meta.env.VITE_URL}/auth/login`;
+    dispatch(authStart());
     try {
-      const response=await axios.post(url,values);
-      const data=response.data;
-      showToast("success",data.message);
-      
-    } catch (error:any) {
+      const response = await axios.post(url, values, {
+        withCredentials: true,
+      });
+      const data = response.data;
+
+      dispatch(authSuccess(data.data));
+
+      showToast("success", data.message);
+      closeDialog();
+    } catch (error: any) {
       const msg =
         error.response?.data?.message || "Something went wrong. Try again.";
 
       showToast("error", msg);
-      
     }
-
   }
   return (
     <>
@@ -98,7 +118,7 @@ const SignInEmailContent = ({ onSwitchToSignIn }: SignInEmailContentProps) => {
                       <button
                         type="button"
                         className="absolute top-1/2 transform -translate-y-1/2 right-3 text-gray-600 hover:text-gray-800 transition-colors"
-                        onClick={() => setShowPassword(prev => !prev)}
+                        onClick={() => setShowPassword((prev) => !prev)}
                       >
                         {showPassword ? <FaEyeSlash /> : <FaEye />}
                       </button>
