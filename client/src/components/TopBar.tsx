@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import Logo from "../assets/images/logo-white.png";
 import { Button } from "./ui/button";
 import { SignUpDialog } from "./SignUpDialog";
-import { useAppSelector } from "@/hooks/useSelector";
+import { useAppSelector } from "@/hooks/useAppSelector";
 import type { RootState } from "@/app/store";
 import { HelpCircle, LogOut, Menu, Settings, User } from "lucide-react";
 import SearchBox from "./SearchBox";
