@@ -15,8 +15,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import axios from "axios";
+import { showToast } from "@/helpers/showToast";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { logout } from "@/features/auth/authSlice";
 
 const TopBar = () => {
+  const dispatch=useAppDispatch();
   const user = useAppSelector((state: RootState) => state.auth.user);
   const isAuthenticated = useAppSelector(
     (state: RootState) => state.auth.isAuthenticated
@@ -24,6 +29,29 @@ const TopBar = () => {
 
   console.log("User status:", user);
   console.log("is User authenticated?:", isAuthenticated);
+
+  async function handleLogOut() {
+    const url = `${import.meta.env.VITE_URL}/auth/logout`;
+    try {
+      const response = await axios.post(
+        url,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+
+      console.log("Logout successful", response);
+      showToast("success", response.data.message || "Logged out successfully");
+      dispatch(logout());
+
+    } catch (error: any) {
+      const msg =
+        error.response?.data?.message || "Something went wrong. Try again.";
+
+      showToast("error", msg);
+    }
+  }
   return (
     <div className="max-w-full px-6 py-4 border-b border-black flex justify-between items-center">
       <div className="flex items-center gap-2">
@@ -112,7 +140,6 @@ const TopBar = () => {
                 </div>
 
                 <div className="py-1">
-                  
                   <DropdownMenuItem className="flex items-center gap-3 px-3 py-2.5 cursor-pointer hover:bg-gray-50">
                     <User className="w-4 h-4 text-gray-500" />
                     <span className="text-gray-900">Profile</span>
@@ -130,14 +157,9 @@ const TopBar = () => {
 
                   <DropdownMenuSeparator />
 
-                  
                   <DropdownMenuItem
                     className="flex items-center gap-3 px-3 py-2.5 cursor-pointer text-red-600 hover:bg-red-50"
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      
-                      console.log("Logging out...");
-                    }}
+                    onSelect={() => handleLogOut()}
                   >
                     <LogOut className="w-4 h-4" />
                     <div className="flex-1">

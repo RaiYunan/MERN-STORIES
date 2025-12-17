@@ -40,7 +40,6 @@ const SignInEmailContent = ({
     password: z.string().min(8),
   });
 
-  // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
