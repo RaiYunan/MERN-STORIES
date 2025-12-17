@@ -93,6 +93,30 @@ export const loginUser = asyncHandler(
       .status(200)
       .cookie('accessToken', accessToken, cookieOptions)
       .cookie('refreshToken', refreshToken, cookieOptions)
-      .json(new ApiResponse(200, loggedInUser, "User logged in successfully."));
+      .json(new ApiResponse(200, loggedInUser, 'User logged in successfully.'));
+  },
+);
+
+export const logoutUser = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+
+    const userId = req.user?._id;
+    if (!userId) {
+      throw new ApiError(401, 'Unauthorized - User is not authenticated.');
+    }
+
+    await User.findByIdAndUpdate(
+      userId,
+      {
+        $unset: { refreshToken: 1 },
+      },
+      { new: true },
+    )
+
+    res
+      .status(200)
+      .clearCookie("accessToken",cookieOptions)
+      .clearCookie("refreshToken",cookieOptions)
+      .json(new ApiResponse(200, null, 'User logged out successfully'));
   },
 );
