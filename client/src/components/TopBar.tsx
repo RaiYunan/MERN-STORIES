@@ -53,7 +53,7 @@ const TopBar = () => {
     }
   }
   return (
-    <div className="max-w-full px-6 py-4 border-b border-black flex justify-between items-center">
+    <div className="max-w-full px-6 py-4 border-b border-black flex justify-between items-center z-50">
       <div className="flex items-center gap-2">
         {user && isAuthenticated && <Menu className="cursor-pointer w-6 h-6" />}
         <Link to="/">

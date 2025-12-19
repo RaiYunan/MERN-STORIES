@@ -2,6 +2,8 @@ import { Button } from "./ui/button";
 import { Mail } from "lucide-react";
 import Facebook from "@/assets/images/facebook.png";
 import Google from "@/assets/images/google.jpg";
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "@/helpers/firebase";
 
 type SignInContentProps = {
   onSwitchToSignUp: () => void;
@@ -9,6 +11,24 @@ type SignInContentProps = {
 };
 
 const SignInContent = ({ onSwitchToSignUp,onSwitchToSignInEmail }: SignInContentProps) => {
+
+  const handleGoogleLogin= async (): Promise<void> =>{
+    try {
+      const result=await signInWithPopup(auth,googleProvider);
+      const user=result.user;
+
+      const bodydata={
+        name:user.displayName,
+        email:user.email,
+        avatar:user.photoURL
+      };
+      //more code to write
+
+    } catch (error) {
+      console.log(error);
+    }
+
+  }
   return (
     <>
       <h2 className="text-2xl sm:text-3xl font-serif text-center">
@@ -19,6 +39,7 @@ const SignInContent = ({ onSwitchToSignUp,onSwitchToSignInEmail }: SignInContent
         <Button
           variant="outline"
           className="w-full rounded-full h-11 sm:h-12 text-base font-normal border border-black"
+          onClick={handleGoogleLogin}
         >
           <img src={Google} alt="google logo" className="mr-2 h-5 w-5" />
           Sign in with Google

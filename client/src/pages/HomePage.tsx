@@ -1,10 +1,16 @@
 import { Button } from "../components/ui/button";
 import HomeImage from "../assets/images/HomeImage.png";
 import { SignUpDialog } from "../components/SignUpDialog";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import type { RootState } from "@/app/store";
 
 const HomePage = () => {
+  const user=useAppSelector((state:RootState)=>state.auth.user);
+  const isAuthenticated=useAppSelector((state:RootState)=>state.auth.isAuthenticated);
   return (
-    <div className="flex flex-col lg:flex-row min-h-[80vh] items-center justify-center">
+    
+    <>
+    {(user && isAuthenticated)?<div>Content</div>:<div className="flex flex-col lg:flex-row min-h-[80vh] items-center justify-center">
       {/* Text Content */}
       <div className="w-full lg:w-[65%] px-6 sm:px-8 lg:px-16">
         <h1 className="text-6xl sm:text-4xl lg:text-7xl font-bold leading-tight sm:leading-tight lg:leading-tight font-serif">
@@ -29,7 +35,9 @@ const HomePage = () => {
           className="w-full h-auto max-h-[500px] object-contain"
         />
       </div>
-    </div>
+    </div>}
+    </>
+    
   );
 };
 
