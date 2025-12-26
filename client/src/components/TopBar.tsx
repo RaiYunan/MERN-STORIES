@@ -21,7 +21,7 @@ import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { logout } from "@/features/auth/authSlice";
 
 const TopBar = () => {
-  const dispatch=useAppDispatch();
+  const dispatch = useAppDispatch();
   const user = useAppSelector((state: RootState) => state.auth.user);
   const isAuthenticated = useAppSelector(
     (state: RootState) => state.auth.isAuthenticated
@@ -44,7 +44,6 @@ const TopBar = () => {
       console.log("Logout successful", response);
       showToast("success", response.data.message || "Logged out successfully");
       dispatch(logout());
-
     } catch (error: any) {
       const msg =
         error.response?.data?.message || "Something went wrong. Try again.";
@@ -79,11 +78,19 @@ const TopBar = () => {
                     className="rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     aria-label="User account menu"
                   >
-                    <img
-                      src={userImage}
-                      alt="User avatar"
-                      className="w-11 h-11 rounded-full object-cover hover:border-blue-500 transition-colors"
-                    />
+                    {user ? (
+                      <img
+                        src={user.avatar || userImage}
+                        alt="User avatar"
+                        className="w-11 h-11 rounded-full object-cover hover:border-blue-500 transition-colors"
+                      />
+                    ) : (
+                      <img
+                        src={userImage}
+                        alt="Default avatar"
+                        className="w-11 h-11 rounded-full object-cover"
+                      />
+                    )}
                   </button>
 
                   <div
@@ -114,9 +121,9 @@ const TopBar = () => {
               >
                 <div className="px-2 py-3">
                   <div className="flex items-center gap-3">
-                    <div className="relative">
+                    <div className="relative cursor-pointer">
                       <img
-                        src={userImage}
+                        src={user?.avatar || userImage}
                         alt="User avatar"
                         className="w-12 h-12 rounded-full object-cover"
                       />

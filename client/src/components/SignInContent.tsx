@@ -4,6 +4,10 @@ import Facebook from "@/assets/images/facebook.png";
 import Google from "@/assets/images/google.jpg";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/helpers/firebase";
+import axios from "axios";
+import { showToast } from "@/helpers/showToast";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { authSuccess } from "@/features/auth/authSlice";
 
 type SignInContentProps = {
   onSwitchToSignUp: () => void;
@@ -11,18 +15,27 @@ type SignInContentProps = {
 };
 
 const SignInContent = ({ onSwitchToSignUp,onSwitchToSignInEmail }: SignInContentProps) => {
+  const dispatch=useAppDispatch();
 
   const handleGoogleLogin= async (): Promise<void> =>{
     try {
       const result=await signInWithPopup(auth,googleProvider);
       const user=result.user;
 
-      const bodydata={
+      const bodyData={
         name:user.displayName,
         email:user.email,
         avatar:user.photoURL
       };
-      //more code to write
+   
+      const url=`${import.meta.env.VITE_URL}/auth/google-login`;
+      const response=await axios.post(url,bodyData,{
+        withCredentials:true
+      });
+      const data=response.data;
+      console.log(data.data);
+      showToast("success",data.message||"User logged in");
+      dispatch(authSuccess(data.data));
 
     } catch (error) {
       console.log(error);
