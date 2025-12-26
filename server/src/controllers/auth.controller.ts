@@ -97,9 +97,36 @@ export const loginUser = asyncHandler(
   },
 );
 
+export const googleLogin = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { name, email, avatar } = req.body;
+    let user;
+    user = await User.findOne({ email: email });
+
+    if (!user) {
+      user = await User.create({
+        name: name,
+        email: email,
+        avatar: avatar,
+        authProvider:"google",
+      
+      });
+    }
+
+    const { accessToken, refreshToken } = await generateAccessRefreshTokens(
+      user._id.toString(),
+    );
+
+    res
+      .status(200)
+      .cookie("accessToken",accessToken,cookieOptions)
+      .cookie("refreshToken",refreshToken,cookieOptions)
+      .json(new ApiResponse(200, user, 'Uer logged in successfully.'));
+  },
+);
+
 export const logoutUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-
     const userId = req.user?._id;
     if (!userId) {
       throw new ApiError(401, 'Unauthorized - User is not authenticated.');
@@ -111,12 +138,12 @@ export const logoutUser = asyncHandler(
         $unset: { refreshToken: 1 },
       },
       { new: true },
-    )
+    );
 
     res
       .status(200)
-      .clearCookie("accessToken",cookieOptions)
-      .clearCookie("refreshToken",cookieOptions)
+      .clearCookie('accessToken', cookieOptions)
+      .clearCookie('refreshToken', cookieOptions)
       .json(new ApiResponse(200, null, 'User logged out successfully'));
   },
 );

@@ -13,7 +13,7 @@ import {
 export interface IUser extends Document {
   name: string;
   email: string;
-  password: string;
+  password?: string;
   avatar?: string;
   authProvider: string;
   createdAt: Date;
@@ -40,7 +40,7 @@ const userSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: true,
+      trim:true,
     },
     avatar: {
       type: String,

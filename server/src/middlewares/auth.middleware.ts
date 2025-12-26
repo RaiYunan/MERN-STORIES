@@ -15,9 +15,15 @@ declare global {
 
 export const verifyJWT = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
+    console.log('--- AUTH DEBUG ---');
+    console.log('Authorization header:', req.headers.authorization);
+    console.log('Cookies:', req.cookies);
+    console.log('------------------');
+    const authHeader = req.header('Authorization');
+
     const token =
       req.cookies?.accessToken ||
-      req.header('Authorization')?.replace('Bearer', '').trim();
+      (authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null);
 
     if (!token) {
       throw new ApiError(401, 'Unauthorized request');
