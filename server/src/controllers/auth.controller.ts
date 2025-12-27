@@ -3,6 +3,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { User } from '../models/user.model';
 import { ApiError } from '../utils/ApiError';
 import { ApiResponse } from '../utils/ApiResponse';
+import admin from '../config/firebaseAdmin';
 
 const sameSiteOption: 'none' | 'lax' | 'strict' =
   process.env.NODE_ENV === 'production' ? 'none' : 'lax';
@@ -108,8 +109,7 @@ export const googleLogin = asyncHandler(
         name: name,
         email: email,
         avatar: avatar,
-        authProvider:"google",
-      
+        authProvider: 'google',
       });
     }
 
@@ -119,8 +119,8 @@ export const googleLogin = asyncHandler(
 
     res
       .status(200)
-      .cookie("accessToken",accessToken,cookieOptions)
-      .cookie("refreshToken",refreshToken,cookieOptions)
+      .cookie('accessToken', accessToken, cookieOptions)
+      .cookie('refreshToken', refreshToken, cookieOptions)
       .json(new ApiResponse(200, user, 'Uer logged in successfully.'));
   },
 );
@@ -145,5 +145,36 @@ export const logoutUser = asyncHandler(
       .clearCookie('accessToken', cookieOptions)
       .clearCookie('refreshToken', cookieOptions)
       .json(new ApiResponse(200, null, 'User logged out successfully'));
+  },
+);
+
+export const facebookLogin = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { token } = req.body;
+
+    const decodedToken = await admin.auth().verifyIdToken(token);
+
+    console.log('Decoded Token=', decodedToken);
+    const { email, name, picture, uid } = decodedToken;
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({
+        email: email,
+        name: name,
+        avatar: picture,
+        authProvider: 'facebook',
+      });
+    }
+
+    const { accessToken, refreshToken } = await generateAccessRefreshTokens(
+      user._id.toString(),
+    );
+
+    res
+      .status(200)
+      .cookie('accessToken', accessToken, cookieOptions)
+      .cookie('refreshToken', refreshToken, cookieOptions)
+      .json(new ApiResponse(200, user, 'User logged in successfully'));
   },
 );

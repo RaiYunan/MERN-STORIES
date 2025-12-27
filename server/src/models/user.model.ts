@@ -48,7 +48,7 @@ const userSchema = new Schema<IUser>(
     },
     authProvider: {
       type: String,
-      enum: ['local', 'google'],
+      enum: ['local', 'google','facebook'],
       default: 'local',
     },
     refreshToken: {
