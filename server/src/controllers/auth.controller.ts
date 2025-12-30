@@ -98,30 +98,85 @@ export const loginUser = asyncHandler(
   },
 );
 
-export const googleLogin = asyncHandler(
+export const oauthLogin = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, email, avatar } = req.body;
-    let user;
-    user = await User.findOne({ email: email });
+    
+    const { token } = req.body;
+    console.log("token",token)
 
-    if (!user) {
-      user = await User.create({
-        name: name,
-        email: email,
-        avatar: avatar,
-        authProvider: 'google',
-      });
+    // Verify the Firebase token
+    const decoded = await admin.auth().verifyIdToken(token);
+    console.log("decoded: ",decoded)
+    const { email, name, picture, firebase } = decoded;
+    
+    // Get the provider info (e.g., 'google.com' or 'facebook.com')
+    const provider = firebase.sign_in_provider;
+    
+    if (!email) {
+      throw new ApiError(400, 'Email not provided by authentication provider');
     }
 
+    // Find existing user by email
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Create new user with the provider
+      user = await User.create({
+        email,
+        name,
+        avatar: picture || '',
+        authProvider: 'oauth', // or map provider to 'google'/'facebook'
+        providers: [provider],
+      });
+      
+      console.log(`New user created with ${provider}:`, email);
+    } else {
+      // User exists - merge accounts
+      console.log(`Existing user found:`, email);
+      console.log(`Current providers:`, user.providers);
+      
+      // Add provider if not already added
+      if (!user.providers) {
+        user.providers = [provider];
+      } else if (!user.providers.includes(provider)) {
+        user.providers.push(provider);
+        console.log(`Added ${provider} to user's providers`);
+      } else {
+        console.log(`${provider} already linked`);
+      }
+      
+      // Update name if user doesn't have one or if it's different
+      if (!user.name || user.name !== name) {
+        user.name = name;
+      }
+      
+      // Update avatar if provided and user doesn't have one
+      if (picture && !user.avatar) {
+        user.avatar = picture;
+      }
+      
+      // Update authProvider to 'oauth' if it was 'local' before
+      if (user.authProvider === 'local') {
+        user.authProvider = 'oauth';
+      }
+      
+      await user.save();
+    }
+
+    // Generate tokens
     const { accessToken, refreshToken } = await generateAccessRefreshTokens(
       user._id.toString(),
     );
 
+    // Send response
+    const message = user.providers.length > 1 
+      ? `Accounts linked successfully! You can now sign in with ${user.providers.join(' or ')}.`
+      : 'User logged in successfully.';
+
     res
-      .status(200)
       .cookie('accessToken', accessToken, cookieOptions)
       .cookie('refreshToken', refreshToken, cookieOptions)
-      .json(new ApiResponse(200, user, 'Uer logged in successfully.'));
+      .json(new ApiResponse(200, user, message));
   },
 );
 
@@ -145,36 +200,5 @@ export const logoutUser = asyncHandler(
       .clearCookie('accessToken', cookieOptions)
       .clearCookie('refreshToken', cookieOptions)
       .json(new ApiResponse(200, null, 'User logged out successfully'));
-  },
-);
-
-export const facebookLogin = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { token } = req.body;
-
-    const decodedToken = await admin.auth().verifyIdToken(token);
-
-    console.log('Decoded Token=', decodedToken);
-    const { email, name, picture, uid } = decodedToken;
-
-    let user = await User.findOne({ email });
-    if (!user) {
-      user = await User.create({
-        email: email,
-        name: name,
-        avatar: picture,
-        authProvider: 'facebook',
-      });
-    }
-
-    const { accessToken, refreshToken } = await generateAccessRefreshTokens(
-      user._id.toString(),
-    );
-
-    res
-      .status(200)
-      .cookie('accessToken', accessToken, cookieOptions)
-      .cookie('refreshToken', refreshToken, cookieOptions)
-      .json(new ApiResponse(200, user, 'User logged in successfully'));
   },
 );

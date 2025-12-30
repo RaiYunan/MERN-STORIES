@@ -1,5 +1,5 @@
 import {Router} from "express"
-import { facebookLogin, googleLogin, loginUser, logoutUser, registerUser } from "../controllers/auth.controller";
+import {  loginUser, logoutUser, oauthLogin, registerUser } from "../controllers/auth.controller";
 import { verifyJWT } from "../middlewares/auth.middleware";
 
 const router=Router();
@@ -7,7 +7,6 @@ const router=Router();
 router.route("/register").post(registerUser);
 router.route("/login").post(loginUser);
 router.route("/logout").post(verifyJWT,logoutUser);
-router.route("/google-login").post(googleLogin);
-router.route("/facebook-login").post(facebookLogin);
+router.route("/oauth-login").post(oauthLogin);
 
 export default router

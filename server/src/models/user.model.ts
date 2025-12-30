@@ -16,9 +16,11 @@ export interface IUser extends Document {
   password?: string;
   avatar?: string;
   authProvider: string;
+  providers: string[];
   createdAt: Date;
   updatedAt: Date;
   refreshToken: string;
+
   isPasswordCorrect(password: string): Promise<boolean>;
   generateAccessToken(): string;
   generateRefreshToken(): string;
@@ -41,6 +43,9 @@ const userSchema = new Schema<IUser>(
     password: {
       type: String,
       trim:true,
+      required: function(this: IUser) {
+        return this.authProvider === 'local';
+      },
     },
     avatar: {
       type: String,
@@ -48,9 +53,10 @@ const userSchema = new Schema<IUser>(
     },
     authProvider: {
       type: String,
-      enum: ['local', 'google','facebook'],
+      enum: ['local', 'google','facebook','oauth'],
       default: 'local',
     },
+    providers: [{ type: String }],
     refreshToken: {
       type: String,
     },
