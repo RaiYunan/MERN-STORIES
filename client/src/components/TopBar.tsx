@@ -19,6 +19,7 @@ import axios from "axios";
 import { showToast } from "@/helpers/showToast";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { logout } from "@/features/auth/authSlice";
+import { persistor } from "@/app/store";
 
 const TopBar = () => {
   const dispatch = useAppDispatch();
@@ -44,6 +45,7 @@ const TopBar = () => {
       console.log("Logout successful", response);
       showToast("success", response.data.message || "Logged out successfully");
       dispatch(logout());
+      await persistor.purge();
     } catch (error: any) {
       const msg =
         error.response?.data?.message || "Something went wrong. Try again.";

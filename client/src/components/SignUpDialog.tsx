@@ -10,11 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
-import Facebook from "@/assets/images/facebook.png";
-import Google from "@/assets/images/google.jpg";
 import SignInContent from "./SignInContent";
 import SignUpEmailContent from "./SignUpEmailContent";
 import SignInEmailContent from "./SignInEmailContent";
+import GoogleLogin from "./GoogleLogin";
+import FacebookLogin from "./FacebookLogin";
 
 type SignUpDialogProps = {
   children: ReactNode;
@@ -64,29 +64,8 @@ export function SignUpDialog({
               </DialogHeader>
 
               <div className="mt-6 space-y-2.5">
-                <Button
-                  variant="outline"
-                  className="w-full rounded-full h-11 sm:h-12 text-base font-normal border-black border"
-                >
-                  <img
-                    src={Google}
-                    alt="google logo"
-                    className="mr-2 h-5 w-5"
-                  />
-                  Sign up with Google
-                </Button>
-
-                <Button
-                  variant="outline"
-                  className="w-full rounded-full h-11 sm:h-12 text-base font-normal border border-black"
-                >
-                  <img
-                    src={Facebook}
-                    alt="facebook logo"
-                    className="mr-2 h-4 w-4"
-                  />
-                  Sign up with Facebook
-                </Button>
+                <GoogleLogin isSignIn={false}/>
+                <FacebookLogin isSignIn={false}/>
 
                 <Button
                   variant="outline"
