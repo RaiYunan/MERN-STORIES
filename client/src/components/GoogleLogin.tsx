@@ -28,7 +28,7 @@ const GoogleLogin = ({ isSignIn }: GoogleLoginProps) => {
       );
 
       const data = response.data;
-      showToast("success", data.message || "Logged in successfully!");
+      showToast("success", "Signed in with Google!");
       dispatch(authSuccess(data.data));
     } catch (error: any) {
       console.error("Google login error:", error);

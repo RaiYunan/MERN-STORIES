@@ -22,12 +22,12 @@ import axios from "axios";
 type SignUpEmailContentProps = {
   onSwitchToSignUp: () => void;
   onSwitchToSignIn: () => void;
-  onSwitchToSignInEmail:()=>void;
+  onSwitchToSignInEmail: () => void;
 };
 const SignUpEmailContent = ({
   onSwitchToSignIn,
   onSwitchToSignUp,
-  onSwitchToSignInEmail
+  onSwitchToSignInEmail,
 }: SignUpEmailContentProps) => {
   const [showPassword, setShowPassword] = useState({
     new: false,
@@ -62,12 +62,11 @@ const SignUpEmailContent = ({
 
     const url = `${import.meta.env.VITE_URL}/auth/register`;
     try {
-      const response = await axios.post(url, userData);
-      const data = response.data;
+      await axios.post(url, userData);
 
-      showToast("success", data.message);
+      showToast("success", "Welcome aboard! Your account has been created.");
       onSwitchToSignInEmail();
-    } catch (error:any) {
+    } catch (error: any) {
       const msg =
         error.response?.data?.message || "Something went wrong. Try again.";
 

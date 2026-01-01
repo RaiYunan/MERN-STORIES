@@ -43,7 +43,7 @@ const TopBar = () => {
       );
 
       console.log("Logout successful", response);
-      showToast("success", response.data.message || "Logged out successfully");
+      showToast("success","Signed out. See you next time!");
       dispatch(logout());
       await persistor.purge();
     } catch (error: any) {

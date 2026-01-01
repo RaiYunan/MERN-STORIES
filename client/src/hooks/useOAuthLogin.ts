@@ -1,8 +1,7 @@
-import { auth, facebookProvider, googleProvider } from "@/helpers/firebase";
+import { auth } from "@/helpers/firebase";
 import { showToast } from "@/helpers/showToast";
 import {
   signInWithPopup,
-  linkWithCredential,
   type AuthProvider,
   GoogleAuthProvider,
   FacebookAuthProvider,
@@ -18,70 +17,35 @@ export const oauthLogin = async (provider: AuthProvider) => {
 
     // Handle account exists with different credential
     if (error.code === "auth/account-exists-with-different-credential") {
-      const email = error.customData?.email;
       const pendingCred =
         GoogleAuthProvider.credentialFromError(error) ??
         FacebookAuthProvider.credentialFromError(error);
 
-      if (!email || !pendingCred) {
-        showToast("error", "Unable to retrieve account information. Please try again.");
-        throw error;
-      }
-
-      try {
+        console.log("pendingCred: ",pendingCred)
+      if (pendingCred) {
         const providerId = pendingCred.providerId;
-        let existingProvider: AuthProvider;
-        let existingProviderName: string;
-        let newProviderName: string;
+        let originalProvider: string;
 
         if (providerId === "facebook.com") {
-          existingProvider = googleProvider;
-          existingProviderName = "Google";
-          newProviderName = "Facebook";
+          originalProvider = "Facebook";
         } else if (providerId === "google.com") {
-          existingProvider = facebookProvider;
-          existingProviderName = "Facebook";
-          newProviderName = "Google";
+          originalProvider = "Google";
         } else {
-          showToast("error", "Unsupported authentication provider");
-          throw error;
+          originalProvider = "another provider";
         }
 
         showToast(
-          "info",
-          `This email is already registered with ${existingProviderName}. Linking your ${newProviderName} account...`
+          "error",
+          `This email is already registered with ${originalProvider}. Please sign in with ${originalProvider} instead.`
         );
-
-        console.log(`🔐 Signing in with ${existingProviderName}...`);
-        const existingUserResult = await signInWithPopup(auth, existingProvider);
-
-        console.log(`🔗 Linking ${newProviderName} account...`);
-        const linkedUser = await linkWithCredential(existingUserResult.user, pendingCred);
-
+      } else {
         showToast(
-          "success",
-          `Success! Both ${existingProviderName} and ${newProviderName} are now linked to your account.`
+          "error",
+          "This email is already registered with another provider. Please use your original sign-in method."
         );
-        
-        return linkedUser.user;
-      } catch (linkError: any) {
-        console.error("❌ Account linking error:", linkError.code);
-
-        if (linkError.code === "auth/popup-closed-by-user") {
-          showToast("error", "Sign-in was cancelled. Please try again to link your accounts.");
-        } else if (linkError.code === "auth/popup-blocked") {
-          showToast("error", "Popup was blocked by your browser. Please allow popups for this site.");
-        } else if (linkError.code === "auth/credential-already-in-use") {
-          showToast("info", "This account is already linked to another user.");
-        } else if (linkError.code === "auth/provider-already-linked") {
-          showToast("success", "Your accounts are already linked!");
-          if (auth.currentUser) return auth.currentUser;
-        } else {
-          showToast("error", "Failed to link accounts. Please try signing in with your original provider.");
-        }
-        
-        throw linkError;
       }
+      
+      throw error;
     }
 
     // Handle other common errors
@@ -91,7 +55,6 @@ export const oauthLogin = async (provider: AuthProvider) => {
       showToast("error", "Popup blocked. Please allow popups for this site and try again.");
     } else if (error.code === "auth/cancelled-popup-request") {
       console.log("ℹ️ Popup cancelled by opening another");
-     
     } else if (error.code === "auth/network-request-failed") {
       showToast("error", "Network error. Please check your connection and try again.");
     } else {

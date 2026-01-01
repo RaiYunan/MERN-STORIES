@@ -28,7 +28,7 @@ const FacebookLogin = ({ isSignIn }: FacebookLoginProps) => {
       );
 
       const data = response.data;
-      showToast("success", data.message || "Logged in successfully!");
+      showToast("success", "Signed in with Facebook!");
       dispatch(authSuccess(data.data));
     } catch (error: any) {
       console.error("Facebook login error:", error);
