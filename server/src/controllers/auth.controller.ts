@@ -98,86 +98,68 @@ export const loginUser = asyncHandler(
   },
 );
 
-export const oauthLogin = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    
-    const { token } = req.body;
-    console.log("token",token)
 
-    // Verify the Firebase token
-    const decoded = await admin.auth().verifyIdToken(token);
-    console.log("decoded: ",decoded)
-    const { email, name, picture, firebase } = decoded;
-    
-    // Get the provider info (e.g., 'google.com' or 'facebook.com')
-    const provider = firebase.sign_in_provider;
-    
-    if (!email) {
-      throw new ApiError(400, 'Email not provided by authentication provider');
+export const oauthLogin = asyncHandler(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const { token } = req.body;
+
+    /* 1. Validate input                                                   */
+    if (!token || typeof token !== "string") {
+      throw new ApiError(400, "OAuth token is required");
     }
 
-    // Find existing user by email
+    /* 2. Verify Firebase ID token (revocation-aware)                      */
+    const decodedToken = await admin.auth().verifyIdToken(token, true);
+    console.log("decodedToken:- ",decodedToken);
+
+    /* 3. Fetch authoritative Firebase user                                */
+    const firebaseUser = await admin.auth().getUser(decodedToken.uid);
+    console.log("Firebase User:- ",firebaseUser);
+
+    const email = firebaseUser.email;
+    if (!email) {
+      throw new ApiError(400, "Email unavailable from OAuth provider");
+    }
+
+    /* 4. Extract linked providers from Firebase                           */
+    const providers = firebaseUser.providerData
+      .map((p) => p.providerId)
+      .filter(Boolean);
+
+      console.log("Providers", providers);
+    if (providers.length === 0) {
+      throw new ApiError(400, "No OAuth providers linked to this account");
+    }
+
+    /* 5. Find or create application user                                  */
     let user = await User.findOne({ email });
 
     if (!user) {
-      // Create new user with the provider
       user = await User.create({
         email,
-        name,
-        avatar: picture || '',
-        authProvider: 'oauth', // or map provider to 'google'/'facebook'
-        providers: [provider],
+        name: firebaseUser.displayName || "",
+        avatar: firebaseUser.photoURL || "",
+        authProvider: "oauth",
+        providers
       });
-      
-      console.log(`New user created with ${provider}:`, email);
-    } else {
-      // User exists - merge accounts
-      console.log(`Existing user found:`, email);
-      console.log(`Current providers:`, user.providers);
-      
-      // Add provider if not already added
-      if (!user.providers) {
-        user.providers = [provider];
-      } else if (!user.providers.includes(provider)) {
-        user.providers.push(provider);
-        console.log(`Added ${provider} to user's providers`);
-      } else {
-        console.log(`${provider} already linked`);
-      }
-      
-      // Update name if user doesn't have one or if it's different
-      if (!user.name || user.name !== name) {
-        user.name = name;
-      }
-      
-      // Update avatar if provided and user doesn't have one
-      if (picture && !user.avatar) {
-        user.avatar = picture;
-      }
-      
-      // Update authProvider to 'oauth' if it was 'local' before
-      if (user.authProvider === 'local') {
-        user.authProvider = 'oauth';
-      }
-      
-      await user.save();
     }
+    /* 6. Generate application tokens                                      */
+    const { accessToken, refreshToken } =
+      await generateAccessRefreshTokens(user._id.toString());
 
-    // Generate tokens
-    const { accessToken, refreshToken } = await generateAccessRefreshTokens(
-      user._id.toString(),
-    );
-
-    // Send response
-    const message = user.providers.length > 1 
-      ? `Accounts linked successfully! You can now sign in with ${user.providers.join(' or ')}.`
-      : 'User logged in successfully.';
-
+    /* 7. Send response                                                    */
     res
-      .cookie('accessToken', accessToken, cookieOptions)
-      .cookie('refreshToken', refreshToken, cookieOptions)
-      .json(new ApiResponse(200, user, message));
-  },
+      .cookie("accessToken", accessToken, cookieOptions)
+      .cookie("refreshToken", refreshToken, cookieOptions)
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          user,
+          "User authenticated successfully"
+        )
+      );
+  }
 );
 
 export const logoutUser = asyncHandler(
