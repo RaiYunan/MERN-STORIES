@@ -53,12 +53,13 @@ const userSchema = new Schema<IUser>(
     },
     authProvider: {
       type: String,
-      enum: ['local', 'google','facebook','oauth'],
+      enum: ['local', 'Google','Facebook'],
       default: 'local',
     },
     providers: [{ type: String }],
     refreshToken: {
       type: String,
+      select:false
     },
   },
   { timestamps: true },

@@ -40,7 +40,10 @@ export const registerUser = asyncHandler(
     const existedUser = await User.findOne({ email: email });
     if (existedUser) {
       console.log('Duplicate User found.', existedUser);
-      throw new ApiError(400, 'User with given email already exists.');
+      throw new ApiError(
+        400,
+        'This email is already registered. Try signing in instead.',
+      );
     }
 
     const user = await User.create({
@@ -98,27 +101,26 @@ export const loginUser = asyncHandler(
   },
 );
 
-
 export const oauthLogin = asyncHandler(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { token } = req.body;
 
     /* 1. Validate input                                                   */
-    if (!token || typeof token !== "string") {
-      throw new ApiError(400, "OAuth token is required");
+    if (!token || typeof token !== 'string') {
+      throw new ApiError(400, 'OAuth token is required');
     }
 
     /* 2. Verify Firebase ID token (revocation-aware)                      */
     const decodedToken = await admin.auth().verifyIdToken(token, true);
-    console.log("decodedToken:- ",decodedToken);
+    console.log('decodedToken:- ', decodedToken);
 
     /* 3. Fetch authoritative Firebase user                                */
     const firebaseUser = await admin.auth().getUser(decodedToken.uid);
-    console.log("Firebase User:- ",firebaseUser);
+    console.log('Firebase User:- ', firebaseUser);
 
     const email = firebaseUser.email;
     if (!email) {
-      throw new ApiError(400, "Email unavailable from OAuth provider");
+      throw new ApiError(400, 'Email unavailable from OAuth provider');
     }
 
     /* 4. Extract linked providers from Firebase                           */
@@ -126,40 +128,56 @@ export const oauthLogin = asyncHandler(
       .map((p) => p.providerId)
       .filter(Boolean);
 
-      console.log("Providers", providers);
+    console.log('Providers', providers);
     if (providers.length === 0) {
-      throw new ApiError(400, "No OAuth providers linked to this account");
+      throw new ApiError(400, 'No OAuth providers linked to this account');
+    }
+
+    const providerId = providers[0];
+    const PROVIDER_MAP: Record<string, 'Google' | 'Facebook'> = {
+      'google.com': 'Google',
+      'facebook.com': 'Facebook',
+    };
+
+    const authProvider = PROVIDER_MAP[providerId];
+    if (!authProvider) {
+      throw new ApiError(400, 'Unsupported OAuth provider');
     }
 
     /* 5. Find or create application user                                  */
     let user = await User.findOne({ email });
-
     if (!user) {
       user = await User.create({
         email,
-        name: firebaseUser.displayName || "",
-        avatar: firebaseUser.photoURL || "",
-        authProvider: "oauth",
-        providers
+        name: firebaseUser.displayName || '',
+        avatar: firebaseUser.photoURL || '',
+        authProvider,
+        providers,
       });
+    } else {
+      user.authProvider = authProvider;
+      user.providers = providers;
+      if (!user.name && firebaseUser.displayName) {
+        user.name = firebaseUser.displayName;
+      }
+
+      if (!user.avatar && firebaseUser.photoURL) {
+        user.avatar = firebaseUser.photoURL;
+      }
+
+      await user.save();
     }
     /* 6. Generate application tokens                                      */
-    const { accessToken, refreshToken } =
-      await generateAccessRefreshTokens(user._id.toString());
-
+    const { accessToken, refreshToken } = await generateAccessRefreshTokens(
+      user._id.toString(),
+    );
     /* 7. Send response                                                    */
     res
-      .cookie("accessToken", accessToken, cookieOptions)
-      .cookie("refreshToken", refreshToken, cookieOptions)
+      .cookie('accessToken', accessToken, cookieOptions)
+      .cookie('refreshToken', refreshToken, cookieOptions)
       .status(200)
-      .json(
-        new ApiResponse(
-          200,
-          user,
-          "User authenticated successfully"
-        )
-      );
-  }
+      .json(new ApiResponse(200, user, 'User authenticated successfully'));
+  },
 );
 
 export const logoutUser = asyncHandler(

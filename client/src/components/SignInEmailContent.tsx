@@ -64,7 +64,7 @@ const SignInEmailContent = ({
 
       dispatch(authSuccess(data.data));
 
-      showToast("success", data.message);
+      showToast("success", 'Welcome back!');
       closeDialog();
     } catch (error: any) {
       const msg =
