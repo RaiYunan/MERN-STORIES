@@ -20,8 +20,10 @@ import { showToast } from "@/helpers/showToast";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { logout } from "@/features/auth/authSlice";
 import { persistor } from "@/app/store";
+import { useSidebar } from "@/components/ui/sidebar";
 
 const TopBar = () => {
+  const { toggleSidebar } = useSidebar();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state: RootState) => state.auth.user);
   const isAuthenticated = useAppSelector(
@@ -43,7 +45,7 @@ const TopBar = () => {
       );
 
       console.log("Logout successful", response);
-      showToast("success","Signed out. See you next time!");
+      showToast("success", "Signed out. See you next time!");
       dispatch(logout());
       await persistor.purge();
     } catch (error: any) {
@@ -53,21 +55,31 @@ const TopBar = () => {
       showToast("error", msg);
     }
   }
+  
   return (
-    <div className="max-w-full px-6 py-4 border-b border-black flex justify-between items-center z-50">
+    <div className="max-w-full px-6 py-4 border-b border-b-gray-400 flex justify-between items-center z-50 bg-white relative">
       <div className="flex items-center gap-2">
-        {user && isAuthenticated && <Menu className="cursor-pointer w-6 h-6" />}
+        {isAuthenticated && (
+          <button 
+            onClick={toggleSidebar}
+            className="cursor-pointer w-6 h-6 flex items-center justify-center"
+            aria-label="Toggle sidebar"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+        )}
         <Link to="/">
           <img
             src={Logo}
             width="160px"
             className="sm:w-[180px] cursor-pointer pt-1"
+            alt="Logo"
           />
         </Link>
-        {user && isAuthenticated && <SearchBox />}
+        {isAuthenticated && <SearchBox />}
       </div>
 
-      {user && isAuthenticated ? (
+      {isAuthenticated ? (
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 cursor-pointer">
             <SquarePen className="w-5 h-5" /> Write
@@ -133,17 +145,17 @@ const TopBar = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-gray-900 truncate">
-                        {user.name}
+                        {user?.name || 'User'}
                       </p>
                       <p className="text-sm text-gray-500 truncate">
-                        {user.email}
+                        {user?.email || ''}
                       </p>
-                      <a
-                        href="/profile"
+                      <Link
+                        to="/profile"
                         className="text-xs text-blue-600 hover:text-blue-800 hover:underline mt-1 inline-block"
                       >
                         View profile
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -173,7 +185,7 @@ const TopBar = () => {
                     <LogOut className="w-4 h-4" />
                     <div className="flex-1">
                       <p className="font-medium text-red-600">Sign out</p>
-                      <p className="text-xs text-gray-500">{user.email}</p>
+                      <p className="text-xs text-gray-500">{user?.email || ''}</p>
                     </div>
                   </DropdownMenuItem>
                 </div>
