@@ -4,14 +4,12 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { Link } from "react-router-dom";
 
-// Menu items.
 const items = [
   {
     title: "Home",

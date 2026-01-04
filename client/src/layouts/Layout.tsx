@@ -3,9 +3,11 @@ import AppSideBar from "../components/AppSideBar";
 import TopBar from "../components/TopBar";
 import Footer from "../components/Footer";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/app/store";
 
 const Layout = () => {
-  const isUserLoggedIn = true; // replace with Redux later
+  const isUserLoggedIn = useSelector((state:RootState)=>state.auth.isAuthenticated);
 
   return (
     <SidebarProvider>

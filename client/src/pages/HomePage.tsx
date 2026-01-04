@@ -12,7 +12,7 @@ const HomePage = () => {
     <>
     {(user && isAuthenticated)?<div>Content</div>:<div className="flex flex-col lg:flex-row min-h-[80vh] items-center justify-center">
       {/* Text Content */}
-      <div className="w-full lg:w-[65%] px-6 sm:px-8 lg:px-16">
+      <div className="w-full sm:px-8 lg:px-16">
         <h1 className="text-6xl sm:text-4xl lg:text-7xl font-bold leading-tight sm:leading-tight lg:leading-tight font-serif">
           Echoes of Experience
         </h1>
@@ -27,8 +27,8 @@ const HomePage = () => {
         </SignUpDialog>
       </div>
 
-      {/* Image - Hidden on mobile, 35% on desktop */}
-      <div className="hidden lg:flex w-[35%] items-center justify-center"> 
+      {/* Image - Hidden on mobile, 70% on desktop */}
+      <div className="hidden lg:flex w-[70%] items-center justify-center"> 
         <img 
           src={HomeImage} 
           alt="Desktop illustration" 

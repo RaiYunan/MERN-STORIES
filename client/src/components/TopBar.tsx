@@ -71,8 +71,8 @@ const TopBar = () => {
         <Link to="/">
           <img
             src={Logo}
-            width="160px"
-            className="sm:w-[180px] cursor-pointer pt-1"
+            width="180px"
+            className="sm:w-[190px] cursor-pointer pt-1 ml-8"
             alt="Logo"
           />
         </Link>
