@@ -55,12 +55,12 @@ const TopBar = () => {
       showToast("error", msg);
     }
   }
-  
+
   return (
     <div className="max-w-full px-6 py-4 border-b border-b-gray-400 flex justify-between items-center z-50 bg-white relative">
       <div className="flex items-center gap-2">
         {isAuthenticated && (
-          <button 
+          <button
             onClick={toggleSidebar}
             className="cursor-pointer w-6 h-6 flex items-center justify-center"
             aria-label="Toggle sidebar"
@@ -72,7 +72,7 @@ const TopBar = () => {
           <img
             src={Logo}
             width="180px"
-            className="sm:w-[190px] cursor-pointer pt-1 ml-8"
+            className="sm:w-[190px] cursor-pointer pt-1 ml-3"
             alt="Logo"
           />
         </Link>
@@ -145,10 +145,10 @@ const TopBar = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-gray-900 truncate">
-                        {user?.name || 'User'}
+                        {user?.name || "User"}
                       </p>
                       <p className="text-sm text-gray-500 truncate">
-                        {user?.email || ''}
+                        {user?.email || ""}
                       </p>
                       <Link
                         to="/profile"
@@ -161,9 +161,17 @@ const TopBar = () => {
                 </div>
 
                 <div className="py-1">
-                  <DropdownMenuItem className="flex items-center gap-3 px-3 py-2.5 cursor-pointer hover:bg-gray-50">
-                    <User className="w-4 h-4 text-gray-500" />
-                    <span className="text-gray-900">Profile</span>
+                  <DropdownMenuItem
+                    asChild
+                    className="px-3 py-2.5 hover:bg-gray-50"
+                  >
+                    <Link
+                      to="/profile"
+                      className="flex items-center gap-3 w-full"
+                    >
+                      <User className="w-4 h-4 text-gray-500" />
+                      <span className="text-gray-900">Profile</span>
+                    </Link>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem className="flex items-center gap-3 px-3 py-2.5 cursor-pointer hover:bg-gray-50">
@@ -185,7 +193,9 @@ const TopBar = () => {
                     <LogOut className="w-4 h-4" />
                     <div className="flex-1">
                       <p className="font-medium text-red-600">Sign out</p>
-                      <p className="text-xs text-gray-500">{user?.email || ''}</p>
+                      <p className="text-xs text-gray-500">
+                        {user?.email || ""}
+                      </p>
                     </div>
                   </DropdownMenuItem>
                 </div>

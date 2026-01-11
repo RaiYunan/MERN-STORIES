@@ -74,7 +74,7 @@ const AppSideBar = () => {
   }
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-gray-100 mt-16">
+    <Sidebar  className="border-r border-gray-100 mt-16">
       <SidebarContent className="py-6">
         <SidebarGroup>
           <SidebarGroupContent>
