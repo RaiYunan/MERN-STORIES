@@ -1,7 +1,7 @@
-import { Button } from "../../../components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
-import GoogleLogin from "@/components/GoogleLogin";
-import FacebookLogin from "@/components/FacebookLogin";
+import GoogleLogin from "@/features/auth/components/GoogleLogin";
+import FacebookLogin from "@/features/auth/components/FacebookLogin";
 
 type SignInContentProps = {
   onSwitchToSignUp: () => void;

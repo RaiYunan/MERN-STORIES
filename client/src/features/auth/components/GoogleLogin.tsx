@@ -1,4 +1,4 @@
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import Google from "@/assets/images/google.jpg";
 import { googleProvider } from "@/helpers/firebase";
 import axios from "axios";

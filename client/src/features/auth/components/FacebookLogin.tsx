@@ -1,4 +1,4 @@
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import Facebook from "@/assets/images/facebook.png";
 import { facebookProvider } from "@/helpers/firebase";
 import axios from "axios";
