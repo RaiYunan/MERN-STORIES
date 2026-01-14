@@ -1,6 +1,6 @@
 import { Button } from "../components/ui/button";
 import HomeImage from "../assets/images/HomeImage.png";
-import { SignUpDialog } from "../components/SignUpDialog";
+import { SignUpDialog } from "../features/auth/components/SignUpDialog";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import type { RootState } from "@/app/store";
 

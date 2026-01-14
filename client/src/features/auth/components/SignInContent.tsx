@@ -1,4 +1,4 @@
-import { Button } from "./ui/button";
+import { Button } from "../../../components/ui/button";
 import { Mail } from "lucide-react";
 import GoogleLogin from "@/components/GoogleLogin";
 import FacebookLogin from "@/components/FacebookLogin";

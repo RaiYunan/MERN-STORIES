@@ -11,8 +11,8 @@ import { Mail } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import SignInContent from "./SignInContent";
-import SignUpEmailContent from "./SignUpEmailContent";
-import SignInEmailContent from "./SignInEmailContent";
+import SignUpEmailContent from "../../../components/SignUpEmailContent";
+import SignInEmailContent from "../../../components/SignInEmailContent";
 import GoogleLogin from "./GoogleLogin";
 import FacebookLogin from "./FacebookLogin";
 
