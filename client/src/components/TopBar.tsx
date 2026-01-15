@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/images/logo-white.png";
 import { Button } from "./ui/button";
 import { SignUpDialog } from "../features/auth/components/SignUpDialog";
@@ -30,6 +30,7 @@ const TopBar = () => {
     (state: RootState) => state.auth.isAuthenticated
   );
 
+  const navigate=useNavigate();
   console.log("User status:", user);
   console.log("is User authenticated?:", isAuthenticated);
 
@@ -48,6 +49,7 @@ const TopBar = () => {
       showToast("success", "Signed out. See you next time!");
       dispatch(logout());
       await persistor.purge();
+      navigate("/", { replace: true });
     } catch (error: any) {
       const msg =
         error.response?.data?.message || "Something went wrong. Try again.";

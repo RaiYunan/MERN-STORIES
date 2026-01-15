@@ -11,18 +11,22 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { ReactNode } from "react";
 
-type EditProfileDialogProps={
-  children:ReactNode
-}
-const EditProfileDialog = ({children}:EditProfileDialogProps) => {
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import type { ReactNode } from "react";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import type { RootState } from "@/app/store";
+import userImage from "@/assets/images/default.jpg"
+
+type EditProfileDialogProps = {
+  children: ReactNode;
+};
+const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
+  const user=useAppSelector((state:RootState)=>state.auth.user);
   return (
     <Dialog>
       <form>
-        <DialogTrigger asChild>
-          {children}
-        </DialogTrigger>
+        <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Edit profile</DialogTitle>
@@ -31,6 +35,12 @@ const EditProfileDialog = ({children}:EditProfileDialogProps) => {
               done.
             </DialogDescription>
           </DialogHeader>
+          <div >
+            <Avatar>
+              <AvatarImage src={user?.avatar || userImage} alt="profile pic" />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+          </div>
           <div className="grid gap-4">
             <div className="grid gap-3">
               <Label htmlFor="name-1">Name</Label>
