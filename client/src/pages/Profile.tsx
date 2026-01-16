@@ -3,14 +3,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Calendar, Edit, Globe, BookOpen } from "lucide-react";
+import { Mail, Calendar, Edit, Globe, BookOpen, PenTool, Eye, Users } from "lucide-react";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import type { RootState } from "@/app/store";
 import EditProfileDialog from "@/dialogs/EditProfileDialog";
 
 const Profile = () => {
   const user = useAppSelector((state: RootState) => state.auth.user);
-  //   const isAuthenticated = useAppSelector((state: RootState) => state.auth.isAuthenticated);
 
   const joinDate = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString("en-US", {
@@ -19,12 +18,12 @@ const Profile = () => {
       })
     : "";
 
-  const mockStats = {
-    stories: 24,
-    reads: 1420,
-    followers: 186,
-    following: 92,
-  };
+  const mockStats = [
+    { label: "Stories", value: 24, icon: <PenTool className="h-4 w-4" /> },
+    { label: "Reads", value: "1.4K", icon: <Eye className="h-4 w-4" /> },
+    { label: "Followers", value: 186, icon: <Users className="h-4 w-4" /> },
+    { label: "Following", value: 92, icon: <Users className="h-4 w-4" /> },
+  ];
 
   const mockRecentStories = [
     { title: "Morning Coffee", date: "2 hours ago", reads: 42 },
@@ -34,46 +33,41 @@ const Profile = () => {
 
   const mockTags = ["Fiction", "Travel", "Personal", "Poetry", "Tech"];
 
+
   return (
-    <div className="min-h-screen bg-linear-to-b from-gray-50 to-white p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-white p-4 md:p-8">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
-            <p className="text-gray-600 mt-1">
-              Your stories and writing journey
+            <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">Profile</h1>
+            <p className="text-gray-500 mt-1 text-sm">
+              Your writing journey
             </p>
           </div>
           <EditProfileDialog>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button className="gap-2 bg-green-600 hover:bg-green-700 text-white">
               <Edit className="h-4 w-4" />
               Edit Profile
             </Button>
           </EditProfileDialog>
         </div>
 
-        {/* Main Content */}
-        <div className="grid md:grid-cols-3 gap-6">
-          {/* Left Sidebar - Profile Info */}
-          <div className="space-y-6">
-            {/* Profile Card */}
-            <Card className="border-gray-200 shadow-sm overflow-hidden">
-              <div className="h-24 bg-linear-to-r from-blue-50 to-indigo-50" />
-              <CardContent className="pt-0">
-                <div className="relative">
-                  <Avatar className="h-32 w-32 border-4 border-white -mt-16 mx-auto shadow-lg">
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-1 space-y-6">
+            <Card className="border border-gray-100 shadow-sm">
+              <CardContent className="pt-6 px-6 pb-6">
+                <div className="text-center">
+                  <Avatar className="h-24 w-24 mx-auto mb-6">
                     <AvatarImage src={user?.avatar || ""} />
-                    <AvatarFallback className="bg-linear-to-br from-blue-100 to-indigo-100 text-lg">
+                    <AvatarFallback className="bg-green-50 text-green-700">
                       {user?.name
                         ?.split(" ")
                         .map((n) => n[0])
                         .join("") || "UR"}
                     </AvatarFallback>
                   </Avatar>
-                </div>
 
-                <div className="text-center mt-6">
                   <h2 className="text-xl font-semibold text-gray-900">
                     {user?.name}
                   </h2>
@@ -81,91 +75,73 @@ const Profile = () => {
                     Storyteller & Writer
                   </p>
 
-                  <div className="flex items-center justify-center gap-2 mt-3">
-                    <Badge variant="outline" className="text-xs">
+                  <div className="flex items-center justify-center gap-2 mt-4">
+                    <Badge className="bg-green-50 text-green-700 border-green-200 text-xs">
                       {user?.authProvider || "Google"}
-                    </Badge>
-                    <Badge variant="secondary" className="text-xs">
-                      Writer
                     </Badge>
                   </div>
                 </div>
 
                 <Separator className="my-6" />
 
-                {/* Stats */}
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900">
-                      {mockStats.stories}
+                <div className="grid grid-cols-2 gap-4">
+                  {mockStats.map((stat) => (
+                    <div key={stat.label} className="text-center p-3 rounded-lg hover:bg-green-50/50 transition-colors">
+                      <div className="flex items-center justify-center gap-2 mb-1">
+                        <div className="text-green-600">{stat.icon}</div>
+                        <div className="text-lg font-semibold text-gray-900">{stat.value}</div>
+                      </div>
+                      <div className="text-xs text-gray-500">{stat.label}</div>
                     </div>
-                    <div className="text-xs text-gray-500">Stories</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900">
-                      {mockStats.reads}
-                    </div>
-                    <div className="text-xs text-gray-500">Reads</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900">
-                      {mockStats.followers}
-                    </div>
-                    <div className="text-xs text-gray-500">Followers</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900">
-                      {mockStats.following}
-                    </div>
-                    <div className="text-xs text-gray-500">Following</div>
-                  </div>
+                  ))}
                 </div>
 
                 <Separator className="my-6" />
 
                 {/* Info */}
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <Mail className="h-4 w-4 text-gray-500 mt-0.5" />
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Mail className="h-4 w-4 text-green-600 shrink-0" />
                     <div className="text-sm">
-                      <div className="font-medium">Email</div>
-                      <div className="text-gray-600 truncate">
-                        {user?.email}
-                      </div>
+                      <div className="text-gray-500">Email</div>
+                      <div className="text-gray-900 truncate">{user?.email}</div>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <Calendar className="h-4 w-4 text-gray-500 mt-0.5" />
+                  <div className="flex items-center gap-3">
+                    <Calendar className="h-4 w-4 text-green-600 shrink-0" />
                     <div className="text-sm">
-                      <div className="font-medium">Joined</div>
-                      <div className="text-gray-600">
-                        {joinDate || "Recently"}
-                      </div>
+                      <div className="text-gray-500">Joined</div>
+                      <div className="text-gray-900">{joinDate || "Recently"}</div>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <Globe className="h-4 w-4 text-gray-500 mt-0.5" />
+                  <div className="flex items-center gap-3">
+                    <Globe className="h-4 w-4 text-green-600 shrink-0" />
                     <div className="text-sm">
-                      <div className="font-medium">Location</div>
-                      <div className="text-gray-600">Kathmandu, Nepal</div>
+                      <div className="text-gray-500">Location</div>
+                      <div className="text-gray-900">Kathmandu, Nepal</div>
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Writing Tags */}
-            <Card className="border-gray-200 shadow-sm">
+            <Card className="border border-gray-100 shadow-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Writing Style</CardTitle>
+                <CardTitle className="text-base font-medium text-gray-900">
+                  Writing Style
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {mockTags.map((tag) => (
+                  {mockTags.map((tag, index) => (
                     <Badge
                       key={tag}
                       variant="outline"
-                      className="rounded-full px-3 py-1 text-xs"
+                      className={`rounded-md text-xs ${
+                        index === 0
+                          ? "bg-green-50 text-green-700 border-green-200"
+                          : "bg-gray-50 text-gray-700 border-gray-200"
+                      }`}
                     >
                       {tag}
                     </Badge>
@@ -175,106 +151,73 @@ const Profile = () => {
             </Card>
           </div>
 
-          {/* Right Content */}
-          <div className="md:col-span-2 space-y-6">
-            {/* Bio Card */}
-            <Card className="border-gray-200 shadow-sm">
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="border border-gray-100 shadow-sm">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-gray-500" />
+                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <BookOpen className="h-5 w-5 text-green-600" />
                   About
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
                 <p className="text-gray-700 leading-relaxed">
-                  Sharing stories that inspire and connect. From personal essays
-                  to fictional tales, each piece is a fragment of life's
-                  beautiful journey. Currently writing about technology, travel,
-                  and the human experience.
+                  Sharing stories that inspire and connect. From personal essays to fictional tales, each piece is a fragment of life's beautiful journey.
                 </p>
-                <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm">
+                <div className="flex gap-3">
+                  <Button className="bg-green-600 hover:bg-green-700 text-white">
                     Start Writing
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" className="border-green-200 text-green-700 hover:bg-green-50">
                     View Archive
                   </Button>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Recent Stories */}
-            <Card className="border-gray-200 shadow-sm">
+           
+            <Card className="border border-gray-100 shadow-sm">
               <CardHeader>
-                <CardTitle>Recent Stories</CardTitle>
+                <CardTitle className="text-lg font-semibold text-gray-900">
+                  Recent Stories
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {mockRecentStories.map((story, index) => (
-                    <div
-                      key={index}
-                      className="group p-4 rounded-lg border border-gray-100 hover:border-gray-300 transition-all hover:shadow-sm"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                            {story.title}
-                          </h3>
-                          <div className="flex items-center gap-4 mt-2">
-                            <span className="text-sm text-gray-500">
-                              {story.date}
-                            </span>
-                            <span className="text-sm text-gray-500">•</span>
-                            <span className="text-sm text-gray-500">
-                              {story.reads} reads
-                            </span>
-                          </div>
+              <CardContent className="space-y-4">
+                {mockRecentStories.map((story, index) => (
+                  <div
+                    key={index}
+                    className="p-4 border border-gray-100 rounded-lg hover:border-green-200 hover:bg-green-50/30 transition-colors"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium text-gray-900 hover:text-green-700 transition-colors">
+                          {story.title}
+                        </h3>
+                        <div className="flex items-center gap-3 mt-2">
+                          <span className="text-sm text-gray-500">{story.date}</span>
+                          <span className="text-sm text-gray-500">•</span>
+                          <span className="text-sm text-gray-500 flex items-center gap-1">
+                            <Eye className="h-3 w-3 text-green-600" />
+                            {story.reads}
+                          </span>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          View
-                        </Button>
                       </div>
+                      <Button variant="ghost" size="sm" className="text-green-700 hover:text-green-800 hover:bg-green-50">
+                        View
+                      </Button>
                     </div>
-                  ))}
-                </div>
-                <Button variant="outline" className="w-full mt-4">
+                  </div>
+                ))}
+                <Button variant="ghost" className="w-full text-green-700 hover:text-green-800 hover:bg-green-50">
                   View All Stories
                 </Button>
               </CardContent>
             </Card>
 
-            {/* Reading List */}
-            <Card className="border-gray-200 shadow-sm">
-              <CardHeader>
-                <CardTitle>Reading List</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {[
-                    "The Art of Storytelling",
-                    "Digital Nomad Diaries",
-                    "Morning Pages",
-                    "Urban Explorations",
-                  ].map((title, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-2 hover:bg-gray-50 rounded"
-                    >
-                      <span className="text-sm text-gray-700">{title}</span>
-                      <Badge variant="outline" className="text-xs">
-                        Saved
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+        
           </div>
         </div>
+
+      
       </div>
     </div>
   );
