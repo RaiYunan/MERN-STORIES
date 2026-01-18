@@ -28,7 +28,7 @@ const generateAccessRefreshTokens = async (userId: string) => {
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
 
-    return { accessToken, refreshToken };
+    return { user, accessToken, refreshToken };
   } catch (error) {
     throw new ApiError(500, 'Something went wrong while generating tokens');
   }
@@ -168,9 +168,11 @@ export const oauthLogin = asyncHandler(
       await user.save();
     }
     /* 6. Generate application tokens                                      */
-    const { accessToken, refreshToken } = await generateAccessRefreshTokens(
+    const { user:updatedUser, accessToken, refreshToken } = await generateAccessRefreshTokens(
       user._id.toString(),
     );
+
+    console.log('Loggedin USer:- ',updatedUser);
     /* 7. Send response                                                    */
     res
       .cookie('accessToken', accessToken, cookieOptions)
@@ -180,20 +182,21 @@ export const oauthLogin = asyncHandler(
   },
 );
 
+
 export const logoutUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user?._id;
-    if (!userId) {
-      throw new ApiError(401, 'Unauthorized - User is not authenticated.');
-    }
+    const refreshToken = req.cookies?.refreshToken;
+    console.log("Cookies:_ ", req.cookies)
+    console.log("refreshToken:_ ",refreshToken);
 
-    await User.findByIdAndUpdate(
-      userId,
-      {
-        $unset: { refreshToken: 1 },
-      },
-      { new: true },
-    );
+    const user=await User.findOne({refreshToken:refreshToken});
+    console.log("Logged out user:- ",user)
+    if (refreshToken) {
+      await User.findOneAndUpdate(
+        { refreshToken },
+        { $unset: { refreshToken: 1 } },
+      );
+    }
 
     res
       .status(200)
