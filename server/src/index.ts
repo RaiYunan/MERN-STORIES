@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from './db/index';
 import authRouter from "./routes/auth.route"
+import userRouter from "./routes/user.route"
 import { ApiError } from './utils/ApiError';
 import cookieParser from 'cookie-parser';
 
@@ -32,6 +33,7 @@ app.get('/', (req: Request, res: Response) => {
 
 //Routes
 app.use("/api/v1/auth",authRouter)
+app.use("/api/v1/user",userRouter)
 
 
 //Global Error Middleware

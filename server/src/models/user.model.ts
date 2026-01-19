@@ -13,6 +13,7 @@ import {
 export interface IUser extends Document {
   name: string;
   email: string;
+  bio:string;
   password?: string;
   avatar?: string;
   authProvider: string;
@@ -39,6 +40,10 @@ const userSchema = new Schema<IUser>(
       lowercase: true,
       unique: true,
       index: true,
+    },
+    bio:{
+      type:String,
+      trim:true
     },
     password: {
       type: String,
