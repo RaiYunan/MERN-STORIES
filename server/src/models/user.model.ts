@@ -13,7 +13,7 @@ import {
 export interface IUser extends Document {
   name: string;
   email: string;
-  bio:string;
+  bio?:string;
   password?: string;
   avatar?: string;
   authProvider: string;

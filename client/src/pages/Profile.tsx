@@ -3,13 +3,47 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Calendar, Edit, Globe, BookOpen, PenTool, Eye, Users } from "lucide-react";
+import {
+  Mail,
+  Calendar,
+  Edit,
+  Globe,
+  BookOpen,
+  PenTool,
+  Eye,
+  Users,
+  Plus,
+  Pencil,
+} from "lucide-react";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import type { RootState } from "@/app/store";
 import EditProfileDialog from "@/dialogs/EditProfileDialog";
+import { useFetch } from "@/hooks/useFetch";
+import type { User } from "@/types/user";
 
 const Profile = () => {
   const user = useAppSelector((state: RootState) => state.auth.user);
+  const userId = user?._id;
+
+  const url = `${import.meta.env.VITE_URL}/users/get-user/${userId}`;
+  const {
+    data: userData,
+    loading,
+    error,
+  } = useFetch<User>(
+    url,
+    {
+      method: "GET",
+      credentials: "include",
+    },
+    [userId],
+  );
+
+  console.log("data:", userData);
+  const bio = userData?.bio?.trim();
+
+  console.log("loading:", loading);
+  console.log("error:-", error);
 
   const joinDate = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString("en-US", {
@@ -33,17 +67,16 @@ const Profile = () => {
 
   const mockTags = ["Fiction", "Travel", "Personal", "Poetry", "Tech"];
 
-
   return (
     <div className="min-h-screen bg-white p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12">
           <div>
-            <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">Profile</h1>
-            <p className="text-gray-500 mt-1 text-sm">
-              Your writing journey
-            </p>
+            <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">
+              Profile
+            </h1>
+            <p className="text-gray-500 mt-1 text-sm">Your writing journey</p>
           </div>
           <EditProfileDialog>
             <Button className="gap-2 bg-green-600 hover:bg-green-700 text-white">
@@ -86,10 +119,15 @@ const Profile = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   {mockStats.map((stat) => (
-                    <div key={stat.label} className="text-center p-3 rounded-lg hover:bg-green-50/50 transition-colors">
+                    <div
+                      key={stat.label}
+                      className="text-center p-3 rounded-lg hover:bg-green-50/50 transition-colors"
+                    >
                       <div className="flex items-center justify-center gap-2 mb-1">
                         <div className="text-green-600">{stat.icon}</div>
-                        <div className="text-lg font-semibold text-gray-900">{stat.value}</div>
+                        <div className="text-lg font-semibold text-gray-900">
+                          {stat.value}
+                        </div>
                       </div>
                       <div className="text-xs text-gray-500">{stat.label}</div>
                     </div>
@@ -104,14 +142,18 @@ const Profile = () => {
                     <Mail className="h-4 w-4 text-green-600 shrink-0" />
                     <div className="text-sm">
                       <div className="text-gray-500">Email</div>
-                      <div className="text-gray-900 truncate">{user?.email}</div>
+                      <div className="text-gray-900 truncate">
+                        {user?.email}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <Calendar className="h-4 w-4 text-green-600 shrink-0" />
                     <div className="text-sm">
                       <div className="text-gray-500">Joined</div>
-                      <div className="text-gray-900">{joinDate || "Recently"}</div>
+                      <div className="text-gray-900">
+                        {joinDate || "Recently"}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -160,21 +202,60 @@ const Profile = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <p className="text-gray-700 leading-relaxed">
-                  Sharing stories that inspire and connect. From personal essays to fictional tales, each piece is a fragment of life's beautiful journey.
-                </p>
+                <div className="space-y-3">
+                  {bio ? (
+                    <div className="group relative p-3 pr-10 rounded-lg hover:bg-gray-50/80 transition-colors duration-200">
+                      <div className="flex items-start gap-3">
+                        <div className="shrink-0 w-1 h-full bg-linear-to-b from-emerald-300 to-emerald-500 rounded-full mt-1"></div>
+                        <p className="text-gray-800 leading-relaxed text-sm sm:text-base flex-1 min-w-0">
+                          {bio}
+                        </p>
+                      </div>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-200 
+               hover:scale-105 active:scale-95 text-gray-500 hover:text-emerald-600 
+               hover:bg-emerald-50 border border-transparent hover:border-emerald-100
+               shadow-sm hover:shadow-xs p-1.5 h-auto"
+                        title="Edit bio"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Button>
+
+                      {/* Subtle hover indicator */}
+                      <div className="absolute inset-0 border border-transparent group-hover:border-emerald-100 rounded-lg pointer-events-none transition-colors duration-200"></div>
+                    </div>
+                  ) : (
+                    <div className="text-center p-6 border border-gray-100 rounded-xl bg-linear-to-b from-white to-emerald-50/20">
+                      <h4 className="text-gray-900 font-medium mb-2">
+                        Your story begins here
+                      </h4>
+                      <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">
+                        Add a short bio to introduce yourself to your readers
+                      </p>
+                      <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm hover:shadow transition-shadow">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Bio
+                      </Button>
+                    </div>
+                  )}
+                </div>
                 <div className="flex gap-3">
                   <Button className="bg-green-600 hover:bg-green-700 text-white">
                     Start Writing
                   </Button>
-                  <Button variant="outline" className="border-green-200 text-green-700 hover:bg-green-50">
+                  <Button
+                    variant="outline"
+                    className="border-green-200 text-green-700 hover:bg-green-50"
+                  >
                     View Archive
                   </Button>
                 </div>
               </CardContent>
             </Card>
 
-           
             <Card className="border border-gray-100 shadow-sm">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-gray-900">
@@ -193,7 +274,9 @@ const Profile = () => {
                           {story.title}
                         </h3>
                         <div className="flex items-center gap-3 mt-2">
-                          <span className="text-sm text-gray-500">{story.date}</span>
+                          <span className="text-sm text-gray-500">
+                            {story.date}
+                          </span>
                           <span className="text-sm text-gray-500">•</span>
                           <span className="text-sm text-gray-500 flex items-center gap-1">
                             <Eye className="h-3 w-3 text-green-600" />
@@ -201,23 +284,26 @@ const Profile = () => {
                           </span>
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm" className="text-green-700 hover:text-green-800 hover:bg-green-50">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-green-700 hover:text-green-800 hover:bg-green-50"
+                      >
                         View
                       </Button>
                     </div>
                   </div>
                 ))}
-                <Button variant="ghost" className="w-full text-green-700 hover:text-green-800 hover:bg-green-50">
+                <Button
+                  variant="ghost"
+                  className="w-full text-green-700 hover:text-green-800 hover:bg-green-50"
+                >
                   View All Stories
                 </Button>
               </CardContent>
             </Card>
-
-        
           </div>
         </div>
-
-      
       </div>
     </div>
   );
