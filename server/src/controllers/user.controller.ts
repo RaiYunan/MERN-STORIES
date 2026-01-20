@@ -16,3 +16,23 @@ export const getUser = asyncHandler(
     res.status(200).json(new ApiResponse(200,user,"User details fetched Successfuly!"));
   },
 );
+
+export const updateUserBio=asyncHandler(async(req:Request,res:Response,next:NextFunction)=>{
+  const {bio, userId}=req.body;
+  if(!bio){
+    throw new ApiError(404,"Bio not provided!");
+  }
+
+  if(!userId){
+    throw new ApiError(404,"User ID not provided!");
+
+  }
+
+  const updatedUser=await User.findByIdAndUpdate(userId,{
+    bio:bio
+  },{
+    new:true
+  })
+  res.status(200).json(new ApiResponse(200,updatedUser,"User bio updated!"))
+
+})
