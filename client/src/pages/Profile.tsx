@@ -213,17 +213,19 @@ const Profile = () => {
                         </p>
                       </div>
 
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-200 
+                      <UpdateBioDialog>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-200 
                hover:scale-105 active:scale-95 text-gray-500 hover:text-emerald-600 
                hover:bg-emerald-50 border border-transparent hover:border-emerald-100
                shadow-sm hover:shadow-xs p-1.5 h-auto"
-                        title="Edit bio"
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                      </Button>
+                          title="Edit bio"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Button>
+                      </UpdateBioDialog>
 
                       {/* Subtle hover indicator */}
                       <div className="absolute inset-0 border border-transparent group-hover:border-emerald-100 rounded-lg pointer-events-none transition-colors duration-200"></div>
@@ -236,7 +238,7 @@ const Profile = () => {
                       <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">
                         Add a short bio to introduce yourself to your readers
                       </p>
-                      <UpdateBioDialog >
+                      <UpdateBioDialog>
                         <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm hover:shadow transition-shadow">
                           <Plus className="w-4 h-4 mr-2" />
                           Add Bio

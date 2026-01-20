@@ -26,26 +26,35 @@ const UpdateBioDialog = ({
 }: UpdateBioDialogProps) => {
   const user = useAppSelector((state: RootState) => state.auth.user);
   console.log(user);
-  initialBio = user?.bio || "";
+  const initialBioValue = user?.bio ?? initialBio ?? "";
+  const [loading, setLoading] = useState(false);
+
   const bioLength = initialBio.length;
+
   const maxLength = 160;
 
   const [bio, setBio] = useState(initialBio);
 
   async function handleSubmit() {
-   
     const url = `${import.meta.env.VITE_URL}/users/me/bio`;
-    const response = await axios.patch(
-      url,
-      { bio:bio.trim() },
-      {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
+    try {
+      setLoading(true);
+      const response = await axios.patch(
+        url,
+        { bio: bio.trim() },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      },
-    );
-    console.log(response);
+      );
+      console.log(response);
+    } catch (err) {
+      console.error("Failed to update bio", err);
+    } finally {
+      setLoading(false);
+    }
   }
   return (
     <Dialog>
@@ -61,11 +70,17 @@ const UpdateBioDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <form className="px-6 pb-6">
+        <form
+          className="px-6 pb-6"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
           <div className="space-y-4">
             <div className="relative">
               <Textarea
-                defaultValue={bio}
+                value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 placeholder="Share what you're passionate about, your expertise, or what inspires you..."
                 rows={4}
@@ -102,11 +117,11 @@ const UpdateBioDialog = ({
           </DialogClose>
           <Button
             type="submit"
-            onClick={handleSubmit}
+             disabled={loading}
             size="sm"
             className="bg-green-600 hover:bg-green-700 text-white"
           >
-            Save
+           {loading ? "Saving..." : "Save"}
           </Button>
         </DialogFooter>
       </DialogContent>
