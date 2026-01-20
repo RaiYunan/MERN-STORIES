@@ -20,6 +20,7 @@ import type { RootState } from "@/app/store";
 import EditProfileDialog from "@/dialogs/EditProfileDialog";
 import { useFetch } from "@/hooks/useFetch";
 import type { User } from "@/types/user";
+import UpdateBioDialog from "@/dialogs/UpdateBioDialog";
 
 const Profile = () => {
   const user = useAppSelector((state: RootState) => state.auth.user);
@@ -235,10 +236,12 @@ const Profile = () => {
                       <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">
                         Add a short bio to introduce yourself to your readers
                       </p>
-                      <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm hover:shadow transition-shadow">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Bio
-                      </Button>
+                      <UpdateBioDialog >
+                        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm hover:shadow transition-shadow">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Bio
+                        </Button>
+                      </UpdateBioDialog>
                     </div>
                   )}
                 </div>
