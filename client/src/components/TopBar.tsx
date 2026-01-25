@@ -50,12 +50,15 @@ const TopBar = () => {
       dispatch(logout());
       await persistor.purge();
       navigate("/", { replace: true });
-    } catch (error: any) {
-      const msg =
-        error.response?.data?.message || "Something went wrong. Try again.";
+    }catch (error: unknown) {
+  let msg = "Something went wrong. Try again.";
 
-      showToast("error", msg);
-    }
+  if (axios.isAxiosError(error)) {
+    msg = error.response?.data?.message ?? msg;
+  }
+
+  showToast("error", msg);
+}
   }
 
   return (
@@ -74,7 +77,7 @@ const TopBar = () => {
           <img
             src={Logo}
             width="180px"
-            className="sm:w-[190px] cursor-pointer pt-1 ml-3"
+            className="sm:w-47.5 cursor-pointer pt-1 ml-3"
             alt="Logo"
           />
         </Link>
@@ -165,7 +168,7 @@ const TopBar = () => {
                 <div className="py-1">
                   <DropdownMenuItem
                     asChild
-                    className="px-3 py-2.5 hover:bg-gray-50"
+                    className="px-3 py-2.5 hover:bg-gray-50 cursor-pointer"
                   >
                     <Link
                       to="/profile"

@@ -116,7 +116,7 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
                       <Textarea
                         placeholder="Enter your bio"
                         {...field}
-                        className="min-h-[100px] text-base p-4"
+                        className="min-h-25 text-base p-4"
                       />
                     </FormControl>
                     <FormMessage />

@@ -29,8 +29,7 @@ const Profile = () => {
   const url = `${import.meta.env.VITE_URL}/users/get-user/${userId}`;
   const {
     data: userData,
-    loading,
-    error,
+    
   } = useFetch<User>(
     url,
     {
@@ -43,8 +42,6 @@ const Profile = () => {
   console.log("data:", userData);
   const bio = userData?.bio?.trim();
 
-  console.log("loading:", loading);
-  console.log("error:-", error);
 
   const joinDate = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString("en-US", {
@@ -238,7 +235,7 @@ const Profile = () => {
                       <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">
                         Add a short bio to introduce yourself to your readers
                       </p>
-                      <UpdateBioDialog>
+                      <UpdateBioDialog initialBio={userData?.bio}>
                         <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm hover:shadow transition-shadow">
                           <Plus className="w-4 h-4 mr-2" />
                           Add Bio

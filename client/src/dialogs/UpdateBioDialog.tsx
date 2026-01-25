@@ -1,4 +1,4 @@
-import type { RootState } from "@/app/store";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,9 +11,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { useAppSelector } from "@/hooks/useAppSelector";
 import axios from "axios";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 type UpdateBioDialogProps = {
   children: ReactNode;
@@ -24,18 +23,22 @@ const UpdateBioDialog = ({
   children,
   initialBio = "",
 }: UpdateBioDialogProps) => {
-  const user = useAppSelector((state: RootState) => state.auth.user);
-  console.log(user);
-  const initialBioValue = user?.bio ?? initialBio ?? "";
+  
   const [loading, setLoading] = useState(false);
+  const [bio, setBio] = useState(initialBio);
 
-  const bioLength = initialBio.length;
+useEffect(() => {
+  setBio(initialBio);
+}, [initialBio]);
+
+  const bioLength = bio.length;
 
   const maxLength = 160;
 
-  const [bio, setBio] = useState(initialBio);
+  
 
   async function handleSubmit() {
+    console.log(" button clicked")
     const url = `${import.meta.env.VITE_URL}/users/me/bio`;
     try {
       setLoading(true);
@@ -103,7 +106,7 @@ const UpdateBioDialog = ({
               <div className="flex-1 h-px bg-gray-200"></div>
             </div>
           </div>
-        </form>
+        
 
         <DialogFooter className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end gap-2">
           <DialogClose asChild>
@@ -117,13 +120,14 @@ const UpdateBioDialog = ({
           </DialogClose>
           <Button
             type="submit"
-             disabled={loading}
+             disabled={loading || !bio.trim()}
             size="sm"
             className="bg-green-600 hover:bg-green-700 text-white"
           >
            {loading ? "Saving..." : "Save"}
           </Button>
         </DialogFooter>
+        </form> 
       </DialogContent>
     </Dialog>
   );
