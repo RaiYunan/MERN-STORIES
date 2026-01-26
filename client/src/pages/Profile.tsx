@@ -210,7 +210,7 @@ const Profile = () => {
                         </p>
                       </div>
 
-                      <UpdateBioDialog>
+                      <UpdateBioDialog initialBio={user?.bio || " "}>
                         <Button
                           variant="ghost"
                           size="sm"

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,30 +20,27 @@ type UpdateBioDialogProps = {
 
 const UpdateBioDialog = ({
   children,
-  initialBio = "",
+  initialBio,
 }: UpdateBioDialogProps) => {
   
   const [loading, setLoading] = useState(false);
-  const [bio, setBio] = useState(initialBio);
+  const [bio, setBio] = useState<string>(initialBio ?? "");
 
-useEffect(() => {
-  setBio(initialBio);
-}, [initialBio]);
+  useEffect(() => {
+    setBio(initialBio ?? "");
+  }, [initialBio]);
 
-  const bioLength = bio.length;
-
+  const bioLength = bio?.length;
   const maxLength = 160;
 
-  
-
   async function handleSubmit() {
-    console.log(" button clicked")
+    console.log("button clicked")
     const url = `${import.meta.env.VITE_URL}/users/me/bio`;
     try {
       setLoading(true);
       const response = await axios.patch(
         url,
-        { bio: bio.trim() },
+        { bio: bio?.trim() },
         {
           withCredentials: true,
           headers: {
@@ -59,6 +55,7 @@ useEffect(() => {
       setLoading(false);
     }
   }
+
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -73,25 +70,40 @@ useEffect(() => {
           </DialogDescription>
         </DialogHeader>
 
+        {/* FORM STARTS HERE */}
         <form
-          className="px-6 pb-6"
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit();
           }}
         >
-          <div className="space-y-4">
+          <div className="px-6 pb-4 space-y-4">
             <div className="relative">
-              <Textarea
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                placeholder="Share what you're passionate about, your expertise, or what inspires you..."
-                rows={4}
-                className="resize-none rounded-lg border-gray-300 focus:ring-green-500 focus:border-green-500 pr-12 text-sm"
-                maxLength={maxLength}
-              />
+          
 
-              <div className="absolute bottom-2 right-2">
+<Textarea
+  value={bio}
+  onChange={(e) => setBio(e.target.value)}
+  maxLength={maxLength}
+  className="
+    w-full
+    h-24
+    resize-none
+    overflow-y-auto
+    overflow-x-hidden
+    break-all
+    whitespace-pre-wrap
+    rounded-lg
+    border-gray-300
+    text-sm
+    focus:ring-green-500
+    focus:border-green-500
+    pr-12
+  "
+/>
+
+              
+              <div className="absolute bottom-3 right-3">
                 <span
                   className={`text-xs ${bioLength > maxLength * 0.9 ? "text-rose-500" : "text-gray-400"}`}
                 >
@@ -106,28 +118,31 @@ useEffect(() => {
               <div className="flex-1 h-px bg-gray-200"></div>
             </div>
           </div>
-        
+          {/* FORM INTERIOR ENDS */}
 
-        <DialogFooter className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end gap-2">
-          <DialogClose asChild>
+          {/* BUTTONS - STILL INSIDE FORM BUT OUTSIDE MAIN CONTENT DIV */}
+          <DialogFooter className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end gap-2 mt-4">
+            <DialogClose asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-600 hover:text-gray-800"
+                type="button"
+              >
+                Cancel
+              </Button>
+            </DialogClose>
             <Button
-              variant="ghost"
+              type="submit"
+              disabled={loading || !bio?.trim()}
               size="sm"
-              className="text-gray-600 hover:text-gray-800"
+              className="bg-green-600 hover:bg-green-700 text-white"
             >
-              Cancel
+              {loading ? "Saving..." : "Save"}
             </Button>
-          </DialogClose>
-          <Button
-            type="submit"
-             disabled={loading || !bio.trim()}
-            size="sm"
-            className="bg-green-600 hover:bg-green-700 text-white"
-          >
-           {loading ? "Saving..." : "Save"}
-          </Button>
-        </DialogFooter>
-        </form> 
+          </DialogFooter>
+        </form>
+        {/* FORM ENDS HERE */}
       </DialogContent>
     </Dialog>
   );
