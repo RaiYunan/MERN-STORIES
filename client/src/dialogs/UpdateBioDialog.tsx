@@ -16,11 +16,13 @@ import { useEffect, useState, type ReactNode } from "react";
 type UpdateBioDialogProps = {
   children: ReactNode;
   initialBio?: string;
+  onSuccess?:()=>void;
 };
 
 const UpdateBioDialog = ({
   children,
   initialBio,
+  onSuccess
 }: UpdateBioDialogProps) => {
   
   const [loading, setLoading] = useState(false);
@@ -49,15 +51,18 @@ const UpdateBioDialog = ({
         },
       );
       console.log(response);
+      onSuccess?.(); 
+      setOpen(false)
     } catch (err) {
       console.error("Failed to update bio", err);
     } finally {
       setLoading(false);
     }
   }
+  const [open,setOpen]=useState(false);
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
 
       <DialogContent className="sm:max-w-md rounded-xl border border-gray-200 shadow-lg p-0 overflow-hidden">
@@ -70,7 +75,6 @@ const UpdateBioDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        {/* FORM STARTS HERE */}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -118,9 +122,6 @@ const UpdateBioDialog = ({
               <div className="flex-1 h-px bg-gray-200"></div>
             </div>
           </div>
-          {/* FORM INTERIOR ENDS */}
-
-          {/* BUTTONS - STILL INSIDE FORM BUT OUTSIDE MAIN CONTENT DIV */}
           <DialogFooter className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end gap-2 mt-4">
             <DialogClose asChild>
               <Button
@@ -142,7 +143,7 @@ const UpdateBioDialog = ({
             </Button>
           </DialogFooter>
         </form>
-        {/* FORM ENDS HERE */}
+        
       </DialogContent>
     </Dialog>
   );

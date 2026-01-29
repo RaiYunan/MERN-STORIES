@@ -29,7 +29,7 @@ const Profile = () => {
   const url = `${import.meta.env.VITE_URL}/users/get-user/${userId}`;
   const {
     data: userData,
-    
+    refetch,
   } = useFetch<User>(
     url,
     {
@@ -210,7 +210,7 @@ const Profile = () => {
                         </p>
                       </div>
 
-                      <UpdateBioDialog initialBio={user?.bio || " "}>
+                      <UpdateBioDialog initialBio={user?.bio || " "} onSuccess={refetch}>
                         <Button
                           variant="ghost"
                           size="sm"
