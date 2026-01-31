@@ -27,10 +27,7 @@ const Profile = () => {
   const userId = user?._id;
 
   const url = `${import.meta.env.VITE_URL}/users/get-user/${userId}`;
-  const {
-    data: userData,
-    refetch,
-  } = useFetch<User>(
+  const { data: userData, refetch } = useFetch<User>(
     url,
     {
       method: "GET",
@@ -41,7 +38,6 @@ const Profile = () => {
 
   console.log("data:", userData);
   const bio = userData?.bio?.trim();
-
 
   const joinDate = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString("en-US", {
@@ -210,19 +206,41 @@ const Profile = () => {
                         </p>
                       </div>
 
-                      <UpdateBioDialog initialBio={user?.bio || " "} onSuccess={refetch}>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-200 
+                      {bio ? (
+                        <UpdateBioDialog
+                          initialBio={userData?.bio || ""}
+                          onSuccess={refetch}
+                        >
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-200 
                hover:scale-105 active:scale-95 text-gray-500 hover:text-emerald-600 
                hover:bg-emerald-50 border border-transparent hover:border-emerald-100
                shadow-sm hover:shadow-xs p-1.5 h-auto"
-                          title="Edit bio"
+                            title="Edit bio"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                        </UpdateBioDialog>
+                      ) : (
+                        <UpdateBioDialog
+                          initialBio={userData?.bio}
+                          onSuccess={refetch}
                         >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </Button>
-                      </UpdateBioDialog>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-200 
+               hover:scale-105 active:scale-95 text-gray-500 hover:text-emerald-600 
+               hover:bg-emerald-50 border border-transparent hover:border-emerald-100
+               shadow-sm hover:shadow-xs p-1.5 h-auto"
+                            title="Edit bio"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                        </UpdateBioDialog>
+                      )}
 
                       {/* Subtle hover indicator */}
                       <div className="absolute inset-0 border border-transparent group-hover:border-emerald-100 rounded-lg pointer-events-none transition-colors duration-200"></div>

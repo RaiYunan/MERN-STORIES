@@ -16,17 +16,17 @@ import { useEffect, useState, type ReactNode } from "react";
 type UpdateBioDialogProps = {
   children: ReactNode;
   initialBio?: string;
-  onSuccess?:()=>void;
+  onSuccess?: () => void;
 };
 
 const UpdateBioDialog = ({
   children,
   initialBio,
-  onSuccess
+  onSuccess,
 }: UpdateBioDialogProps) => {
-  
   const [loading, setLoading] = useState(false);
   const [bio, setBio] = useState<string>(initialBio ?? "");
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     setBio(initialBio ?? "");
@@ -36,7 +36,7 @@ const UpdateBioDialog = ({
   const maxLength = 160;
 
   async function handleSubmit() {
-    console.log("button clicked")
+    console.log("button clicked");
     const url = `${import.meta.env.VITE_URL}/users/me/bio`;
     try {
       setLoading(true);
@@ -51,15 +51,18 @@ const UpdateBioDialog = ({
         },
       );
       console.log(response);
-      onSuccess?.(); 
-      setOpen(false)
+
+      // Close dialog first
+      setOpen(false);
+
+      // Then trigger refetch
+      onSuccess?.();
     } catch (err) {
       console.error("Failed to update bio", err);
     } finally {
       setLoading(false);
     }
   }
-  const [open,setOpen]=useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -83,13 +86,11 @@ const UpdateBioDialog = ({
         >
           <div className="px-6 pb-4 space-y-4">
             <div className="relative">
-          
-
-<Textarea
-  value={bio}
-  onChange={(e) => setBio(e.target.value)}
-  maxLength={maxLength}
-  className="
+              <Textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                maxLength={maxLength}
+                className="
     w-full
     h-24
     resize-none
@@ -104,9 +105,8 @@ const UpdateBioDialog = ({
     focus:border-green-500
     pr-12
   "
-/>
+              />
 
-              
               <div className="absolute bottom-3 right-3">
                 <span
                   className={`text-xs ${bioLength > maxLength * 0.9 ? "text-rose-500" : "text-gray-400"}`}
@@ -143,7 +143,6 @@ const UpdateBioDialog = ({
             </Button>
           </DialogFooter>
         </form>
-        
       </DialogContent>
     </Dialog>
   );
