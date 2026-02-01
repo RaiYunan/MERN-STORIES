@@ -16,7 +16,7 @@ import { useEffect, useState, type ReactNode } from "react";
 type UpdateBioDialogProps = {
   children: ReactNode;
   initialBio?: string;
-  onSuccess?: () => void;
+  onSuccess?: () => void; // ✓ No parameter needed
 };
 
 const UpdateBioDialog = ({
@@ -36,13 +36,15 @@ const UpdateBioDialog = ({
   const maxLength = 160;
 
   async function handleSubmit() {
-    console.log("button clicked");
+    console.log("UpdateBioDialog: Submitting bio update");
+    const trimmedBio = bio?.trim();
     const url = `${import.meta.env.VITE_URL}/users/me/bio`;
+    
     try {
       setLoading(true);
       const response = await axios.patch(
         url,
-        { bio: bio?.trim() },
+        { bio: trimmedBio },
         {
           withCredentials: true,
           headers: {
@@ -50,15 +52,15 @@ const UpdateBioDialog = ({
           },
         },
       );
-      console.log(response);
+      console.log("UpdateBioDialog: Bio updated successfully", response.data);
 
-      // Close dialog first
+      
       setOpen(false);
 
-      // Then trigger refetch
       onSuccess?.();
+      
     } catch (err) {
-      console.error("Failed to update bio", err);
+      console.error("UpdateBioDialog: Failed to update bio", err);
     } finally {
       setLoading(false);
     }

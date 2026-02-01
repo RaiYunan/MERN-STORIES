@@ -5,7 +5,7 @@ type FetchOptions = RequestInit;
 export const useFetch = <T>(
   url: string | null,
   options: FetchOptions = {},
-  dependencies: unknown[] = [],
+  dependencies: unknown[] = []
 ) => {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -32,6 +32,7 @@ export const useFetch = <T>(
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 
+        console.log("useFetch: Fetched data:", responseData.data);
         setData(responseData.data as T);
         setError(null);
       } catch (err) {

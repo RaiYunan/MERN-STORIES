@@ -21,13 +21,14 @@ import EditProfileDialog from "@/dialogs/EditProfileDialog";
 import { useFetch } from "@/hooks/useFetch";
 import type { User } from "@/types/user";
 import UpdateBioDialog from "@/dialogs/UpdateBioDialog";
+import { useEffect} from "react";
 
 const Profile = () => {
   const user = useAppSelector((state: RootState) => state.auth.user);
   const userId = user?._id;
 
   const url = `${import.meta.env.VITE_URL}/users/get-user/${userId}`;
-  const { data: userData, refetch } = useFetch<User>(
+  const { data: userData, refetch, loading } = useFetch<User>(
     url,
     {
       method: "GET",
@@ -36,7 +37,17 @@ const Profile = () => {
     [userId],
   );
 
-  console.log("data:", userData);
+  
+  const handleBioUpdate = () => {
+    console.log("Bio updated successfully, triggering refetch...");
+    refetch(); 
+  };
+
+  useEffect(() => {
+  console.log(" userData changed:", userData);
+}, [userData]);
+
+  console.log("Profile render - userData:", userData, "loading:", loading);
   const bio = userData?.bio?.trim();
 
   const joinDate = user?.createdAt
@@ -206,41 +217,22 @@ const Profile = () => {
                         </p>
                       </div>
 
-                      {bio ? (
-                        <UpdateBioDialog
-                          initialBio={userData?.bio || ""}
-                          onSuccess={refetch}
-                        >
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-200 
+                      <UpdateBioDialog
+                        initialBio={userData?.bio || ""}
+                        onSuccess={handleBioUpdate}
+                      >
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-200 
                hover:scale-105 active:scale-95 text-gray-500 hover:text-emerald-600 
                hover:bg-emerald-50 border border-transparent hover:border-emerald-100
                shadow-sm hover:shadow-xs p-1.5 h-auto"
-                            title="Edit bio"
-                          >
-                            <Pencil className="w-3.5 h-3.5" />
-                          </Button>
-                        </UpdateBioDialog>
-                      ) : (
-                        <UpdateBioDialog
-                          initialBio={userData?.bio}
-                          onSuccess={refetch}
+                          title="Edit bio"
                         >
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-200 
-               hover:scale-105 active:scale-95 text-gray-500 hover:text-emerald-600 
-               hover:bg-emerald-50 border border-transparent hover:border-emerald-100
-               shadow-sm hover:shadow-xs p-1.5 h-auto"
-                            title="Edit bio"
-                          >
-                            <Pencil className="w-3.5 h-3.5" />
-                          </Button>
-                        </UpdateBioDialog>
-                      )}
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Button>
+                      </UpdateBioDialog>
 
                       {/* Subtle hover indicator */}
                       <div className="absolute inset-0 border border-transparent group-hover:border-emerald-100 rounded-lg pointer-events-none transition-colors duration-200"></div>
@@ -253,7 +245,10 @@ const Profile = () => {
                       <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">
                         Add a short bio to introduce yourself to your readers
                       </p>
-                      <UpdateBioDialog initialBio={userData?.bio}>
+                      <UpdateBioDialog
+                        initialBio={userData?.bio}
+                        onSuccess={handleBioUpdate}
+                      >
                         <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm hover:shadow transition-shadow">
                           <Plus className="w-4 h-4 mr-2" />
                           Add Bio
