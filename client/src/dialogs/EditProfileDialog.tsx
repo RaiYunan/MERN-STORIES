@@ -21,32 +21,53 @@ import {
 } from "@/components/ui/form";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import type { RootState } from "@/app/store";
 import userImage from "@/assets/images/default.jpg";
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useFetch } from "@/hooks/useFetch";
+import type { User } from "@/types/user";
 
 type EditProfileDialogProps = {
   children: ReactNode;
 };
 const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
   const user = useAppSelector((state: RootState) => state.auth.user);
+  console.log("User Data:- ", user);
+  const userID = user?._id;
+  console.log(userID);
+
+  const fetchUrl = `${import.meta.env.VITE_URL}/users/get-user/${userID}`;
+  const { data: userData } = useFetch<User>(fetchUrl, {
+    method: "GET",
+    credentials: "include",
+  });
   const formSchema = z.object({
     name: z.string(),
     bio: z.string(),
   });
 
+  console.log("Data from fetching user:- ", userData);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: user?.name || "",
+      name: "",
       bio: "",
     },
   });
 
+  useEffect(() => {
+    if (userData) {
+      form.reset({
+        name: userData?.name ?? "",
+        bio: userData?.bio ?? "",
+      });
+    }
+  }, [userData, form]);
   const onSubmit = () => {
     console.log("Submiited");
   };
