@@ -30,15 +30,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFetch } from "@/hooks/useFetch";
 import type { User } from "@/types/user";
+import { useWatch } from "react-hook-form";
 
 type EditProfileDialogProps = {
   children: ReactNode;
 };
 const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
   const user = useAppSelector((state: RootState) => state.auth.user);
-  console.log("User Data:- ", user);
   const userID = user?._id;
-  console.log(userID);
 
   const fetchUrl = `${import.meta.env.VITE_URL}/users/get-user/${userID}`;
   const { data: userData } = useFetch<User>(fetchUrl, {
@@ -49,8 +48,6 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
     name: z.string(),
     bio: z.string(),
   });
-
-  console.log("Data from fetching user:- ", userData);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -68,6 +65,16 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
       });
     }
   }, [userData, form]);
+
+  const bio =
+    useWatch({
+      control: form.control,
+      name: "bio",
+    }) ?? "";
+
+  const bioLength = bio.trim().length;
+
+  const maxLength = 160;
   const onSubmit = () => {
     console.log("Submiited");
   };
@@ -134,11 +141,20 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
                   <FormItem>
                     <FormLabel className="font-medium">Short bio</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Enter your bio"
-                        {...field}
-                        className="min-h-25 text-base p-4"
-                      />
+                      <div className="relative">
+                        <Textarea
+                          placeholder="Enter your bio"
+                          {...field}
+                          className="min-h-25 text-base p-4"
+                        />
+                        <div className="absolute bottom-3 right-3">
+                          <span
+                            className={`text-xs ${bioLength > maxLength * 0.9 ? "text-rose-500" : "text-gray-400"}`}
+                          >
+                            {bioLength}/{maxLength}
+                          </span>
+                        </div>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
