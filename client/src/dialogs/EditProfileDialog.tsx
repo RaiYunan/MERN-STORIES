@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/form";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import type { RootState } from "@/app/store";
 import userImage from "@/assets/images/default.jpg";
@@ -36,6 +36,9 @@ type EditProfileDialogProps = {
   children: ReactNode;
 };
 const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
+  const [open, setOpen] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [photoChanged, setPhotoChanged] = useState(false);
   const user = useAppSelector((state: RootState) => state.auth.user);
   const userID = user?._id;
 
@@ -44,6 +47,7 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
     method: "GET",
     credentials: "include",
   });
+
   const formSchema = z.object({
     name: z.string(),
     bio: z.string(),
@@ -51,11 +55,16 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: "onChange",
     defaultValues: {
       name: "",
       bio: "",
     },
   });
+
+  const {
+    formState: { isDirty, isValid },
+  } = form;
 
   useEffect(() => {
     if (userData) {
@@ -75,11 +84,23 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
   const bioLength = bio.trim().length;
 
   const maxLength = 160;
+
+  const removeProfile = () => {
+    console.log("Profile removed");
+    setPhotoChanged(true);
+  };
+
+  const updateProfile = () => {
+    console.log("Profile updated");
+    setPhotoChanged(true);
+  };
   const onSubmit = () => {
     console.log("Submiited");
+    setOpen(false);
   };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="w-[95vw] max-w-2xl py-8 px-6">
         <DialogHeader>
@@ -98,10 +119,16 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
             </Avatar>
             <div className="space-y-4 flex-1">
               <div className="flex gap-6 text-sm">
-                <p className="text-green-700 cursor-pointer font-medium hover:text-green-800">
+                <p
+                  className="text-green-700 cursor-pointer font-medium hover:text-green-800"
+                  onClick={updateProfile}
+                >
                   Update
                 </p>
-                <p className="text-red-700 cursor-pointer font-medium hover:text-red-800">
+                <p
+                  className="text-red-700 cursor-pointer font-medium hover:text-red-800"
+                  onClick={removeProfile}
+                >
                   Remove
                 </p>
               </div>
@@ -173,9 +200,10 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
               </DialogClose>
               <Button
                 type="submit"
+                disabled={!(isDirty || photoChanged) || !isValid || saveLoading}
                 className="bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow rounded-lg px-8 py-2.5 font-medium transition-all"
               >
-                Save
+                {saveLoading ? "Saving..." : "Save"}
               </Button>
             </DialogFooter>
           </form>
