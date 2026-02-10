@@ -35,22 +35,25 @@ import { useWatch } from "react-hook-form";
 type EditProfileDialogProps = {
   children: ReactNode;
 };
+
 const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
   const [open, setOpen] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
-  const [photoChanged, setPhotoChanged] = useState(false);
+  const [photoRemoved, setPhotoRemoved] = useState(false);
+  const [photoUpdated, setPhotoUpdated] = useState(false);
+  
   const user = useAppSelector((state: RootState) => state.auth.user);
   const userID = user?._id;
 
   const fetchUrl = `${import.meta.env.VITE_URL}/users/get-user/${userID}`;
-  const { data: userData } = useFetch<User>(fetchUrl, {
+  const { data: userData, refetch } = useFetch<User>(fetchUrl, {
     method: "GET",
     credentials: "include",
   });
 
   const formSchema = z.object({
-    name: z.string(),
-    bio: z.string(),
+    name: z.string().min(1, "Name is required"),
+    bio: z.string().max(160, "Bio must be 160 characters or less"),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -66,38 +69,80 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
     formState: { isDirty, isValid },
   } = form;
 
+  // ✅ FIX 1: Refetch fresh data when dialog opens
   useEffect(() => {
-    if (userData) {
+    if (open) {
+      console.log("Dialog opened, refetching user data...");
+      refetch(); // Get latest data from server
+      
+      // Reset photo states when opening
+      setPhotoRemoved(false);
+      setPhotoUpdated(false);
+    }
+  }, [open, refetch]);
+
+  // ✅ FIX 2: Reset form when userData changes
+  useEffect(() => {
+    if (userData && open) {
+      console.log("Resetting form with fresh data:", userData);
       form.reset({
         name: userData?.name ?? "",
         bio: userData?.bio ?? "",
       });
     }
-  }, [userData, form]);
+  }, [userData, form, open]);
 
-  const bio =
-    useWatch({
-      control: form.control,
-      name: "bio",
-    }) ?? "";
+  // ✅ FIX 3: Clean up states when dialog closes
+  useEffect(() => {
+    if (!open) {
+      // Reset photo states when closing
+      setPhotoRemoved(false);
+      setPhotoUpdated(false);
+      setSaveLoading(false);
+    }
+  }, [open]);
+
+  const bio = useWatch({
+    control: form.control,
+    name: "bio",
+  }) ?? "";
 
   const bioLength = bio.trim().length;
-
   const maxLength = 160;
 
   const removeProfile = () => {
     console.log("Profile removed");
-    setPhotoChanged(true);
+    setPhotoRemoved(true);
+    setPhotoUpdated(false); // Ensure mutual exclusivity
   };
 
   const updateProfile = () => {
     console.log("Profile updated");
-    setPhotoChanged(true);
+    setPhotoUpdated(true);
+    setPhotoRemoved(false); // Ensure mutual exclusivity
   };
-  const onSubmit = () => {
-    console.log("Submiited");
-    setOpen(false);
+
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    console.log("Submitting profile update:", data);
+    setSaveLoading(true);
+
+    try {
+      // Your API call here
+      // await axios.patch(...)
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      console.log("Profile updated successfully");
+      setOpen(false);
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+    } finally {
+      setSaveLoading(false);
+    }
   };
+
+  const hasChanges = isDirty || photoRemoved || photoUpdated;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -200,8 +245,8 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
               </DialogClose>
               <Button
                 type="submit"
-                disabled={!(isDirty || photoChanged) || !isValid || saveLoading}
-                className="bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow rounded-lg px-8 py-2.5 font-medium transition-all"
+                disabled={!hasChanges || !isValid || saveLoading}
+                className="bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow rounded-lg px-8 py-2.5 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saveLoading ? "Saving..." : "Save"}
               </Button>

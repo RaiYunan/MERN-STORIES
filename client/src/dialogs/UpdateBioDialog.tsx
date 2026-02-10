@@ -16,7 +16,7 @@ import { useEffect, useState, type ReactNode } from "react";
 type UpdateBioDialogProps = {
   children: ReactNode;
   initialBio?: string;
-  onSuccess?: () => void; // ✓ No parameter needed
+  onSuccess?: () => void;
 };
 
 const UpdateBioDialog = ({
@@ -28,18 +28,21 @@ const UpdateBioDialog = ({
   const [bio, setBio] = useState<string>(initialBio ?? "");
   const [open, setOpen] = useState(false);
 
+  // ✅ Reset bio when dialog opens with fresh initialBio
   useEffect(() => {
-    setBio(initialBio ?? "");
-  }, [initialBio]);
+    if (open) {
+      setBio(initialBio ?? "");
+    }
+  }, [initialBio, open]);
 
-  const bioLength = bio?.length;
+  const bioLength = bio?.length || 0;
   const maxLength = 160;
 
   async function handleSubmit() {
     console.log("UpdateBioDialog: Submitting bio update");
     const trimmedBio = bio?.trim();
     const url = `${import.meta.env.VITE_URL}/users/me/bio`;
-    
+
     try {
       setLoading(true);
       const response = await axios.patch(
@@ -50,15 +53,12 @@ const UpdateBioDialog = ({
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
       console.log("UpdateBioDialog: Bio updated successfully", response.data);
 
-      
       setOpen(false);
-
       onSuccess?.();
-      
     } catch (err) {
       console.error("UpdateBioDialog: Failed to update bio", err);
     } finally {
@@ -93,20 +93,20 @@ const UpdateBioDialog = ({
                 onChange={(e) => setBio(e.target.value)}
                 maxLength={maxLength}
                 className="
-    w-full
-    h-24
-    resize-none
-    overflow-y-auto
-    overflow-x-hidden
-    break-all
-    whitespace-pre-wrap
-    rounded-lg
-    border-gray-300
-    text-sm
-    focus:ring-green-500
-    focus:border-green-500
-    pr-12
-  "
+                  w-full
+                  h-24
+                  resize-none
+                  overflow-y-auto
+                  overflow-x-hidden
+                  break-all
+                  whitespace-pre-wrap
+                  rounded-lg
+                  border-gray-300
+                  text-sm
+                  focus:ring-green-500
+                  focus:border-green-500
+                  pr-12
+                "
               />
 
               <div className="absolute bottom-3 right-3">

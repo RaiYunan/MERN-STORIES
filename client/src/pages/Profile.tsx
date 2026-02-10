@@ -21,7 +21,6 @@ import EditProfileDialog from "@/dialogs/EditProfileDialog";
 import { useFetch } from "@/hooks/useFetch";
 import type { User } from "@/types/user";
 import UpdateBioDialog from "@/dialogs/UpdateBioDialog";
-import { useEffect} from "react";
 
 const Profile = () => {
   const user = useAppSelector((state: RootState) => state.auth.user);
@@ -34,18 +33,13 @@ const Profile = () => {
       method: "GET",
       credentials: "include",
     },
-    [userId],
+    [userId]
   );
 
-  
   const handleBioUpdate = () => {
     console.log("Bio updated successfully, triggering refetch...");
-    refetch(); 
+    refetch();
   };
-
-  useEffect(() => {
-  console.log(" userData changed:", userData);
-}, [userData]);
 
   console.log("Profile render - userData:", userData, "loading:", loading);
   const bio = userData?.bio?.trim();
@@ -211,7 +205,7 @@ const Profile = () => {
                   {bio ? (
                     <div className="group relative p-3 pr-10 rounded-lg hover:bg-gray-50/80 transition-colors duration-200">
                       <div className="flex items-start gap-3">
-                        <div className="shrink-0 w-1 h-full bg-linear-to-b from-emerald-300 to-emerald-500 rounded-full mt-1"></div>
+                        <div className="shrink-0 w-1 h-full bg-gradient-to-b from-emerald-300 to-emerald-500 rounded-full mt-1"></div>
                         <p className="text-gray-800 leading-relaxed text-sm sm:text-base flex-1 min-w-0">
                           {bio}
                         </p>
@@ -234,11 +228,10 @@ const Profile = () => {
                         </Button>
                       </UpdateBioDialog>
 
-                      {/* Subtle hover indicator */}
                       <div className="absolute inset-0 border border-transparent group-hover:border-emerald-100 rounded-lg pointer-events-none transition-colors duration-200"></div>
                     </div>
                   ) : (
-                    <div className="text-center p-6 border border-gray-100 rounded-xl bg-linear-to-b from-white to-emerald-50/20">
+                    <div className="text-center p-6 border border-gray-100 rounded-xl bg-gradient-to-b from-white to-emerald-50/20">
                       <h4 className="text-gray-900 font-medium mb-2">
                         Your story begins here
                       </h4>
