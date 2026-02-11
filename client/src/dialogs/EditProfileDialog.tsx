@@ -31,6 +31,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFetch } from "@/hooks/useFetch";
 import type { User } from "@/types/user";
 import { useWatch } from "react-hook-form";
+import axios from "axios";
 
 type EditProfileDialogProps = {
   children: ReactNode;
@@ -41,6 +42,8 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
   const [saveLoading, setSaveLoading] = useState(false);
   const [photoRemoved, setPhotoRemoved] = useState(false);
   const [photoUpdated, setPhotoUpdated] = useState(false);
+  const [newPhotoFile, setNewPhotoFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   
   const user = useAppSelector((state: RootState) => state.auth.user);
   const userID = user?._id;
@@ -69,19 +72,21 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
     formState: { isDirty, isValid },
   } = form;
 
-  // ✅ FIX 1: Refetch fresh data when dialog opens
+  // Refetch fresh data when dialog opens
   useEffect(() => {
     if (open) {
       console.log("Dialog opened, refetching user data...");
-      refetch(); // Get latest data from server
+      refetch();
       
       // Reset photo states when opening
       setPhotoRemoved(false);
       setPhotoUpdated(false);
+      setNewPhotoFile(null);
+      setPreviewUrl(null);
     }
   }, [open, refetch]);
 
-  // ✅ FIX 2: Reset form when userData changes
+  // Reset form when userData changes
   useEffect(() => {
     if (userData && open) {
       console.log("Resetting form with fresh data:", userData);
@@ -92,12 +97,13 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
     }
   }, [userData, form, open]);
 
-  // ✅ FIX 3: Clean up states when dialog closes
+  // Clean up states when dialog closes
   useEffect(() => {
     if (!open) {
-      // Reset photo states when closing
       setPhotoRemoved(false);
       setPhotoUpdated(false);
+      setNewPhotoFile(null);
+      setPreviewUrl(null);
       setSaveLoading(false);
     }
   }, [open]);
@@ -110,33 +116,129 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
   const bioLength = bio.trim().length;
   const maxLength = 160;
 
+  // Handle photo removal - just update UI state
   const removeProfile = () => {
-    console.log("Profile removed");
+    console.log("Photo marked for removal");
     setPhotoRemoved(true);
-    setPhotoUpdated(false); // Ensure mutual exclusivity
+    setPhotoUpdated(false);
+    setNewPhotoFile(null);
+    setPreviewUrl(null);
   };
 
+  //  Handle photo update - show file picker and preview
   const updateProfile = () => {
-    console.log("Profile updated");
-    setPhotoUpdated(true);
-    setPhotoRemoved(false); // Ensure mutual exclusivity
+    // Create a hidden file input
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/jpeg,image/jpg,image/png,image/gif";
+    
+    input.onchange = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
+      
+      if (file) {
+        // Validate file size (e.g., max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          alert("File size must be less than 5MB");
+          return;
+        }
+        
+        // Validate file type
+        if (!file.type.startsWith("image/")) {
+          alert("Please select an image file");
+          return;
+        }
+        
+        console.log("Photo selected:", file.name);
+        setNewPhotoFile(file);
+        setPhotoUpdated(true);
+        setPhotoRemoved(false);
+        
+        // Create preview URL
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviewUrl(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+    
+    input.click();
   };
 
+  //  Determine which image to show
+  const getDisplayImage = () => {
+    // If photo is marked for removal, show default image
+    if (photoRemoved) {
+      return userImage;
+    }
+    
+    // If new photo is selected, show preview
+    if (photoUpdated && previewUrl) {
+      return previewUrl;
+    }
+    
+    // Otherwise show current user avatar or default
+    return user?.avatar || userImage;
+  };
+
+  
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     console.log("Submitting profile update:", data);
     setSaveLoading(true);
 
     try {
-      // Your API call here
-      // await axios.patch(...)
+      let avatarUrl = user?.avatar;
+
+      // Handle photo upload
+      if (photoUpdated && newPhotoFile) {
+        console.log("Uploading new photo...");
+        
+        const formData = new FormData();
+        formData.append("avatar", newPhotoFile);
+        
+        const uploadResponse = await axios.post(
+          `${import.meta.env.VITE_URL}/users/upload-avatar`,
+          formData,
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        
+        avatarUrl = uploadResponse.data.avatarUrl;
+        console.log("Photo uploaded successfully:", avatarUrl);
+      }
+    
+
+      // Update profile with all changes
+      const updateResponse = await axios.patch(
+        `${import.meta.env.VITE_URL}/users/me`,
+        {
+          name: data.name,
+          bio: data.bio,
+          avatar: avatarUrl,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Profile updated successfully:", updateResponse.data);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Refetch to update all components
+      await refetch();
       
-      console.log("Profile updated successfully");
       setOpen(false);
     } catch (error) {
       console.error("Failed to update profile:", error);
+      // TODO: Show error toast notification
+      alert("Failed to update profile. Please try again.");
     } finally {
       setSaveLoading(false);
     }
@@ -158,10 +260,23 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
         <div className="flex flex-col gap-4 mb-6">
           <p className="text-gray-700 font-medium">Photo</p>
           <div className="flex flex-col sm:flex-row gap-6 items-start">
-            <Avatar className="h-22 w-22 cursor-pointer shrink-0">
-              <AvatarImage src={user?.avatar || userImage} alt="profile pic" />
-              <AvatarFallback className="text-lg">CN</AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="h-22 w-22 cursor-pointer shrink-0">
+                <AvatarImage 
+                  src={getDisplayImage()} 
+                  alt="profile pic" 
+                />
+                <AvatarFallback className="text-lg">
+                  {user?.name
+                    ?.split(" ")
+                    .map((n) => n[0])
+                    .join("") || "UR"}
+                </AvatarFallback>
+              </Avatar>
+              
+          
+            </div>
+            
             <div className="space-y-4 flex-1">
               <div className="flex gap-6 text-sm">
                 <p
@@ -181,6 +296,16 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
                 Recommended: Square JPG, PNG, or GIF, at least 1,000 pixels per
                 side.
               </div>
+              {photoRemoved && (
+                <div className="text-sm text-red-600 font-medium">
+                  ⚠️ Profile photo will be removed when you save
+                </div>
+              )}
+              {photoUpdated && newPhotoFile && (
+                <div className="text-sm text-green-600 font-medium">
+                  ✓ New photo selected: {newPhotoFile.name}
+                </div>
+              )}
             </div>
           </div>
         </div>
