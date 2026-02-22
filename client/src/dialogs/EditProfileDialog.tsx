@@ -19,9 +19,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, useCallback, type ReactNode } from "react";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import type { RootState } from "@/app/store";
 import userImage from "@/assets/images/default.jpg";
@@ -32,6 +31,8 @@ import { useFetch } from "@/hooks/useFetch";
 import type { User } from "@/types/user";
 import { useWatch } from "react-hook-form";
 import axios from "axios";
+import { useDropzone } from "react-dropzone";
+import { Upload, X, Camera } from "lucide-react";
 
 type EditProfileDialogProps = {
   children: ReactNode;
@@ -44,7 +45,7 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
   const [photoUpdated, setPhotoUpdated] = useState(false);
   const [newPhotoFile, setNewPhotoFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  
+
   const user = useAppSelector((state: RootState) => state.auth.user);
   const userID = user?._id;
 
@@ -72,13 +73,11 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
     formState: { isDirty, isValid },
   } = form;
 
-  // Refetch fresh data when dialog opens
   useEffect(() => {
     if (open) {
       console.log("Dialog opened, refetching user data...");
       refetch();
-      
-      // Reset photo states when opening
+
       setPhotoRemoved(false);
       setPhotoUpdated(false);
       setNewPhotoFile(null);
@@ -86,7 +85,6 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
     }
   }, [open, refetch]);
 
-  // Reset form when userData changes
   useEffect(() => {
     if (userData && open) {
       console.log("Resetting form with fresh data:", userData);
@@ -108,136 +106,142 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
     }
   }, [open]);
 
-  const bio = useWatch({
-    control: form.control,
-    name: "bio",
-  }) ?? "";
+  // Cleanup preview URL on unmount or when it changes
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        console.log("Preview URL revoked:", previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  const bio =
+    useWatch({
+      control: form.control,
+      name: "bio",
+    }) ?? "";
 
   const bioLength = bio.trim().length;
   const maxLength = 160;
 
-  // Handle photo removal - just update UI state
+  const handleFileSelection = useCallback(
+    (acceptedFiles: File[]) => {
+      const file = acceptedFiles[0];
+
+      if (!file) return;
+
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        alert("File size must be less than 5MB");
+        return;
+      }
+
+      if (!file.type.startsWith("image/")) {
+        alert("Please select an image file");
+        return;
+      }
+
+      console.log("Photo selected:", file.name);
+
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+
+      const preview = URL.createObjectURL(file);
+      setPreviewUrl(preview);
+      setNewPhotoFile(file);
+      setPhotoUpdated(true);
+      setPhotoRemoved(false);
+    },
+    [previewUrl],
+  );
+
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    open: openDropzone,
+  } = useDropzone({
+    onDrop: handleFileSelection,
+    accept: {
+      "image/jpeg": [".jpeg", ".jpg"],
+      "image/png": [".png"],
+      "image/gif": [".gif"],
+    },
+    maxSize: 5 * 1024 * 1024, // 5MB
+    multiple: false,
+    noClick: true,
+    noKeyboard: true,
+  });
+
+  // Handle photo removal
   const removeProfile = () => {
     console.log("Photo marked for removal");
     setPhotoRemoved(true);
     setPhotoUpdated(false);
     setNewPhotoFile(null);
-    setPreviewUrl(null);
+
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
   };
 
-  //  Handle photo update - show file picker and preview
-  const updateProfile = () => {
-    // Create a hidden file input
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/jpeg,image/jpg,image/png,image/gif";
-    
-    input.onchange = (e: Event) => {
-      const target = e.target as HTMLInputElement;
-      const file = target.files?.[0];
-      
-      if (file) {
-        // Validate file size (e.g., max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          alert("File size must be less than 5MB");
-          return;
-        }
-        
-        // Validate file type
-        if (!file.type.startsWith("image/")) {
-          alert("Please select an image file");
-          return;
-        }
-        
-        console.log("Photo selected:", file.name);
-        setNewPhotoFile(file);
-        setPhotoUpdated(true);
-        setPhotoRemoved(false);
-        
-        // Create preview URL
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setPreviewUrl(reader.result as string);
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-    
-    input.click();
+  const handleUpdateClick = () => {
+    openDropzone();
   };
 
-  //  Determine which image to show
   const getDisplayImage = () => {
-    // If photo is marked for removal, show default image
     if (photoRemoved) {
       return userImage;
     }
-    
-    // If new photo is selected, show preview
+
     if (photoUpdated && previewUrl) {
       return previewUrl;
     }
-    
-    // Otherwise show current user avatar or default
+
     return user?.avatar || userImage;
   };
 
-  
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     console.log("Submitting profile update:", data);
     setSaveLoading(true);
 
     try {
-      let avatarUrl = user?.avatar;
+      const formData = new FormData();
 
-      // Handle photo upload
+      formData.append("name", data.name);
+      formData.append("bio", data.bio);
+
       if (photoUpdated && newPhotoFile) {
         console.log("Uploading new photo...");
-        
-        const formData = new FormData();
         formData.append("avatar", newPhotoFile);
-        
-        const uploadResponse = await axios.post(
-          `${import.meta.env.VITE_URL}/users/upload-avatar`,
-          formData,
-          {
-            withCredentials: true,
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        
-        avatarUrl = uploadResponse.data.avatarUrl;
-        console.log("Photo uploaded successfully:", avatarUrl);
       }
-    
 
-      // Update profile with all changes
+      if (photoRemoved) {
+        console.log("Removing photo...");
+        formData.append("removeAvatar", "true");
+      }
+
       const updateResponse = await axios.patch(
         `${import.meta.env.VITE_URL}/users/me`,
-        {
-          name: data.name,
-          bio: data.bio,
-          avatar: avatarUrl,
-        },
+        formData,
         {
           withCredentials: true,
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       console.log("Profile updated successfully:", updateResponse.data);
-      
-      // Refetch to update all components
+
       await refetch();
-      
+
       setOpen(false);
     } catch (error) {
       console.error("Failed to update profile:", error);
-      // TODO: Show error toast notification
       alert("Failed to update profile. Please try again.");
     } finally {
       setSaveLoading(false);
@@ -260,50 +264,100 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
         <div className="flex flex-col gap-4 mb-6">
           <p className="text-gray-700 font-medium">Photo</p>
           <div className="flex flex-col sm:flex-row gap-6 items-start">
-            <div className="relative">
-              <Avatar className="h-22 w-22 cursor-pointer shrink-0">
-                <AvatarImage 
-                  src={getDisplayImage()} 
-                  alt="profile pic" 
+            <div {...getRootProps()} className="relative">
+              <input {...getInputProps()} />
+              <Avatar className="h-24 w-24 cursor-pointer shrink-0 group">
+                <AvatarImage
+                  src={getDisplayImage()}
+                  alt="profile pic"
+                  className="object-cover"
                 />
-                <AvatarFallback className="text-lg">
+                <AvatarFallback className="text-lg bg-green-50 text-green-700">
                   {user?.name
                     ?.split(" ")
                     .map((n) => n[0])
                     .join("") || "UR"}
                 </AvatarFallback>
+
+                <div
+                  className={`absolute inset-0 flex items-center justify-center rounded-full transition-opacity ${
+                    isDragActive
+                      ? "bg-green-500/70 opacity-100"
+                      : "bg-black/50 opacity-0 group-hover:opacity-100"
+                  }`}
+                  onClick={handleUpdateClick}
+                >
+                  <Camera className="w-6 h-6 text-white" />
+                </div>
               </Avatar>
-              
-          
-            </div>
-            
-            <div className="space-y-4 flex-1">
-              <div className="flex gap-6 text-sm">
-                <p
-                  className="text-green-700 cursor-pointer font-medium hover:text-green-800"
-                  onClick={updateProfile}
-                >
-                  Update
-                </p>
-                <p
-                  className="text-red-700 cursor-pointer font-medium hover:text-red-800"
-                  onClick={removeProfile}
-                >
-                  Remove
-                </p>
-              </div>
-              <div className="text-sm text-gray-600 leading-relaxed">
-                Recommended: Square JPG, PNG, or GIF, at least 1,000 pixels per
-                side.
-              </div>
+
               {photoRemoved && (
-                <div className="text-sm text-red-600 font-medium">
+                <div className="absolute -bottom-1 -right-1 bg-red-500 text-white text-xs rounded-full px-2 py-0.5 flex items-center gap-1 shadow-md">
+                  <X className="w-3 h-3" />
+                  Removed
+                </div>
+              )}
+              {photoUpdated && (
+                <div className="absolute -bottom-1 -right-1 bg-green-500 text-white text-xs rounded-full px-2 py-0.5 shadow-md">
+                  ✓ New
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4 flex-1">
+              {/* Action buttons */}
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleUpdateClick}
+                  className="text-green-700 border-green-200 hover:bg-green-50 hover:border-green-300"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Update Photo
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={removeProfile}
+                  disabled={!user?.avatar && !photoUpdated}
+                  className="text-red-700 border-red-200 hover:bg-red-50 hover:border-red-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Remove
+                </Button>
+              </div>
+
+              <div className="text-sm text-gray-600 leading-relaxed">
+                <p className="font-medium mb-1">Photo Guidelines:</p>
+                <ul className="list-disc list-inside space-y-0.5 text-xs">
+                  <li>Square JPG, PNG, or GIF recommended</li>
+                  <li>At least 1,000 pixels per side</li>
+                  <li>Maximum file size: 5MB</li>
+                </ul>
+              </div>
+
+              {isDragActive && (
+                <div className="text-sm text-green-600 bg-green-50 p-2 rounded-md border border-green-200">
+                  📁 Drop your photo here...
+                </div>
+              )}
+
+              {photoRemoved && (
+                <div className="text-sm text-red-600 bg-red-50 p-2 rounded-md border border-red-200">
                   ⚠️ Profile photo will be removed when you save
                 </div>
               )}
+
               {photoUpdated && newPhotoFile && (
-                <div className="text-sm text-green-600 font-medium">
-                  ✓ New photo selected: {newPhotoFile.name}
+                <div className="text-sm text-green-600 bg-green-50 p-2 rounded-md border border-green-200">
+                  <p className="font-medium">✓ New photo selected:</p>
+                  <p className="text-xs mt-1">
+                    {newPhotoFile.name} ({(newPhotoFile.size / 1024).toFixed(0)}{" "}
+                    KB)
+                  </p>
                 </div>
               )}
             </div>
@@ -323,7 +377,7 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
                       <Input
                         placeholder="Enter your Name"
                         {...field}
-                        className="h-8 text-base"
+                        className="h-10 text-base"
                       />
                     </FormControl>
                     <FormMessage />
@@ -340,13 +394,19 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
                     <FormControl>
                       <div className="relative">
                         <Textarea
-                          placeholder="Enter your bio"
+                          placeholder="Tell us about yourself..."
                           {...field}
-                          className="min-h-25 text-base p-4"
+                          className="min-h-[100px] text-base p-4 resize-none"
                         />
                         <div className="absolute bottom-3 right-3">
                           <span
-                            className={`text-xs ${bioLength > maxLength * 0.9 ? "text-rose-500" : "text-gray-400"}`}
+                            className={`text-xs font-medium ${
+                              bioLength > maxLength * 0.9
+                                ? "text-rose-500"
+                                : bioLength > maxLength * 0.75
+                                  ? "text-amber-500"
+                                  : "text-gray-400"
+                            }`}
                           >
                             {bioLength}/{maxLength}
                           </span>
@@ -362,8 +422,10 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
             <DialogFooter className="mt-8 gap-3">
               <DialogClose asChild>
                 <Button
+                  type="button"
                   variant="outline"
                   className="border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-800 hover:bg-gray-50 rounded-lg px-6 py-2.5 font-medium transition-all"
+                  disabled={saveLoading}
                 >
                   Cancel
                 </Button>
@@ -373,7 +435,14 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
                 disabled={!hasChanges || !isValid || saveLoading}
                 className="bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow rounded-lg px-8 py-2.5 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {saveLoading ? "Saving..." : "Save"}
+                {saveLoading ? (
+                  <>
+                    <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
               </Button>
             </DialogFooter>
           </form>
