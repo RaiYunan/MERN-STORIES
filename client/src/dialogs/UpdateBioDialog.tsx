@@ -94,7 +94,7 @@ const UpdateBioDialog = ({
                 maxLength={maxLength}
                 className="
                   w-full
-                  h-24
+                  h-[100px]
                   resize-none
                   overflow-y-auto
                   overflow-x-hidden
@@ -111,7 +111,10 @@ const UpdateBioDialog = ({
 
               <div className="absolute bottom-3 right-3">
                 <span
-                  className={`text-xs ${bioLength > maxLength * 0.9 ? "text-rose-500" : "text-gray-400"}`}
+                  className={`text-xs ${bioLength > maxLength * 0.9? "text-rose-500"
+                                : bioLength > maxLength * 0.75
+                                  ? "text-amber-500"
+                                  : "text-gray-400"}`}
                 >
                   {bioLength}/{maxLength}
                 </span>

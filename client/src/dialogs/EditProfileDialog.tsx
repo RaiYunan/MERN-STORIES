@@ -32,7 +32,7 @@ import type { User } from "@/types/user";
 import { useWatch } from "react-hook-form";
 import axios from "axios";
 import { useDropzone } from "react-dropzone";
-import { Upload, X, Camera } from "lucide-react";
+import { Camera } from "lucide-react";
 
 type EditProfileDialogProps = {
   children: ReactNode;
@@ -95,7 +95,6 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
     }
   }, [userData, form, open]);
 
-  // Clean up states when dialog closes
   useEffect(() => {
     if (!open) {
       setPhotoRemoved(false);
@@ -128,6 +127,7 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
   const handleFileSelection = useCallback(
     (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
+      console.log("File:- ", file);
 
       if (!file) return;
 
@@ -287,21 +287,9 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
                   }`}
                   onClick={handleUpdateClick}
                 >
-                  <Camera className="w-6 h-6 text-white" />
+                  <Camera className="w-4 h-4 text-white" />
                 </div>
               </Avatar>
-
-              {photoRemoved && (
-                <div className="absolute -bottom-1 -right-1 bg-red-500 text-white text-xs rounded-full px-2 py-0.5 flex items-center gap-1 shadow-md">
-                  <X className="w-3 h-3" />
-                  Removed
-                </div>
-              )}
-              {photoUpdated && (
-                <div className="absolute -bottom-1 -right-1 bg-green-500 text-white text-xs rounded-full px-2 py-0.5 shadow-md">
-                  ✓ New
-                </div>
-              )}
             </div>
 
             <div className="space-y-4 flex-1">
@@ -314,8 +302,7 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
                   onClick={handleUpdateClick}
                   className="text-green-700 border-green-200 hover:bg-green-50 hover:border-green-300"
                 >
-                  <Upload className="w-4 h-4 mr-2" />
-                  Update Photo
+                  Update
                 </Button>
                 <Button
                   type="button"
@@ -325,7 +312,6 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
                   disabled={!user?.avatar && !photoUpdated}
                   className="text-red-700 border-red-200 hover:bg-red-50 hover:border-red-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <X className="w-4 h-4 mr-2" />
                   Remove
                 </Button>
               </div>
@@ -395,8 +381,24 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
                       <div className="relative">
                         <Textarea
                           placeholder="Tell us about yourself..."
+                          maxLength={160}
                           {...field}
-                          className="min-h-[100px] text-base p-4 resize-none"
+                          
+                          className="
+                  w-full
+                  h-[100px]
+                  resize-none
+                  overflow-y-auto
+                  overflow-x-hidden
+                  break-all
+                  whitespace-pre-wrap
+                  rounded-lg
+                  border-gray-300
+                  text-sm
+                  focus:ring-green-500
+                  focus:border-green-500
+                  pr-12
+                "
                         />
                         <div className="absolute bottom-3 right-3">
                           <span
