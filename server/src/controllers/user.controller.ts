@@ -55,3 +55,17 @@ export const updateUserBio = asyncHandler(
       .json(new ApiResponse(200, updatedUser, 'Bio updated successfully'));
   },
 );
+
+export const updateUserDetails=asyncHandler(async(req:Request,res:Response,next:NextFunction)=>{
+  const {removeAvatar,avatar,name,bio}=req.body
+
+  const userId=req.user?._id;
+  if(!userId){
+    if (!userId) {
+      throw new ApiError(401, 'Unauthorized');
+    }
+  }
+  
+
+
+})
