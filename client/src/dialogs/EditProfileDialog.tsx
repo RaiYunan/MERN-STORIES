@@ -225,7 +225,7 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
       }
 
       const updateResponse = await axios.patch(
-        `${import.meta.env.VITE_URL}/users/me`,
+        `${import.meta.env.VITE_URL}/users/me/update-user-details`,
         formData,
         {
           withCredentials: true,
