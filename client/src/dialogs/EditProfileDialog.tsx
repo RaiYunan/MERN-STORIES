@@ -33,12 +33,15 @@ import { useWatch } from "react-hook-form";
 import axios from "axios";
 import { useDropzone } from "react-dropzone";
 import { Camera } from "lucide-react";
+import { setUser } from "@/features/auth/authSlice";
+import { useDispatch } from "react-redux";
 
 type EditProfileDialogProps = {
   children: ReactNode;
 };
 
 const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
+  const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [photoRemoved, setPhotoRemoved] = useState(false);
@@ -234,8 +237,10 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
           },
         },
       );
+      //causing error
+      // const updatedUser = updateResponse.data.user;
 
-      console.log("Profile updated successfully:", updateResponse.data);
+      // dispatch(setUser(updatedUser));
 
       await refetch();
 
@@ -383,7 +388,6 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
                           placeholder="Tell us about yourself..."
                           maxLength={160}
                           {...field}
-                          
                           className="
                   w-full
                   h-[100px]

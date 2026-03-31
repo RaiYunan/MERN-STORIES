@@ -37,11 +37,10 @@ const Profile = () => {
   );
 
   const handleBioUpdate = () => {
-    console.log("Bio updated successfully, triggering refetch...");
     refetch();
   };
 
-  console.log("Profile render - userData:", userData, "loading:", loading);
+  console.log("loading:", loading);
   const bio = userData?.bio?.trim();
 
   const joinDate = user?.createdAt
@@ -101,7 +100,7 @@ const Profile = () => {
                   </Avatar>
 
                   <h2 className="text-xl font-semibold text-gray-900">
-                    {user?.name}
+                    {userData?.name || user?.name}
                   </h2>
                   <p className="text-gray-600 text-sm mt-1">
                     Storyteller & Writer
