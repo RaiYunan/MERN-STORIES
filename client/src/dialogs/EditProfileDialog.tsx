@@ -38,9 +38,10 @@ import { useDispatch } from "react-redux";
 
 type EditProfileDialogProps = {
   children: ReactNode;
+  onSuccess?: () => void;
 };
 
-const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
+const EditProfileDialog = ({ children ,onSuccess}: EditProfileDialogProps) => {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -237,13 +238,10 @@ const EditProfileDialog = ({ children }: EditProfileDialogProps) => {
           },
         },
       );
-      //causing error
-      // const updatedUser = updateResponse.data.user;
+    
 
-      // dispatch(setUser(updatedUser));
-
-      await refetch();
-
+      await refetch(); 
+      onSuccess?.();
       setOpen(false);
     } catch (error) {
       console.error("Failed to update profile:", error);

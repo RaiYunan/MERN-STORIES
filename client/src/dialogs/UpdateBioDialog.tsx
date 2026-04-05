@@ -28,7 +28,7 @@ const UpdateBioDialog = ({
   const [bio, setBio] = useState<string>(initialBio ?? "");
   const [open, setOpen] = useState(false);
 
-  // ✅ Reset bio when dialog opens with fresh initialBio
+  //  Reset bio when dialog opens with fresh initialBio
   useEffect(() => {
     if (open) {
       setBio(initialBio ?? "");
@@ -39,7 +39,6 @@ const UpdateBioDialog = ({
   const maxLength = 160;
 
   async function handleSubmit() {
-    console.log("UpdateBioDialog: Submitting bio update");
     const trimmedBio = bio?.trim();
     const url = `${import.meta.env.VITE_URL}/users/me/bio`;
 

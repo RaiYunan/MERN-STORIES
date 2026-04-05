@@ -40,7 +40,6 @@ const Profile = () => {
     refetch();
   };
 
-  console.log("loading:", loading);
   const bio = userData?.bio?.trim();
 
   const joinDate = user?.createdAt
@@ -76,7 +75,7 @@ const Profile = () => {
             </h1>
             <p className="text-gray-500 mt-1 text-sm">Your writing journey</p>
           </div>
-          <EditProfileDialog>
+          <EditProfileDialog onSuccess={refetch}>
             <Button className="gap-2 bg-green-600 hover:bg-green-700 text-white">
               <Edit className="h-4 w-4" />
               Edit Profile
