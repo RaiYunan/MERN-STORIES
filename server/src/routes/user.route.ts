@@ -7,7 +7,7 @@ const router=Router();
 
 router.route("/get-user/:userId").get(getUser);
 router.patch("/me/bio", verifyJWT, updateUserBio);
-router.patch("/me/user-details",verifyJWT,updateUserBio)
+router.patch("/me/user-details",verifyJWT,updateUserDetails)
 
 router.route("/me/update-user-details").patch(verifyJWT,upload.single("avatar"),updateUserDetails)
 export default router

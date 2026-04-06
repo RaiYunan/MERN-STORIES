@@ -33,8 +33,6 @@ import { useWatch } from "react-hook-form";
 import axios from "axios";
 import { useDropzone } from "react-dropzone";
 import { Camera } from "lucide-react";
-import { setUser } from "@/features/auth/authSlice";
-import { useDispatch } from "react-redux";
 
 type EditProfileDialogProps = {
   children: ReactNode;
@@ -42,7 +40,6 @@ type EditProfileDialogProps = {
 };
 
 const EditProfileDialog = ({ children ,onSuccess}: EditProfileDialogProps) => {
-  const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [photoRemoved, setPhotoRemoved] = useState(false);
@@ -207,6 +204,7 @@ const EditProfileDialog = ({ children ,onSuccess}: EditProfileDialogProps) => {
 
     return user?.avatar || userImage;
   };
+  
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     console.log("Submitting profile update:", data);
@@ -228,8 +226,8 @@ const EditProfileDialog = ({ children ,onSuccess}: EditProfileDialogProps) => {
         formData.append("removeAvatar", "true");
       }
 
-      const updateResponse = await axios.patch(
-        `${import.meta.env.VITE_URL}/users/me/update-user-details`,
+      await axios.patch(
+        `${import.meta.env.VITE_URL}/users/me/user-details`,
         formData,
         {
           withCredentials: true,
@@ -239,8 +237,6 @@ const EditProfileDialog = ({ children ,onSuccess}: EditProfileDialogProps) => {
         },
       );
     
-
-      await refetch(); 
       onSuccess?.();
       setOpen(false);
     } catch (error) {
